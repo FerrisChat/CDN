@@ -1,2 +1,5 @@
-pub use self::entrypoint::*;
-pub use self::upload::*;
+mod entrypoint;
+mod upload;
+
+pub use entrypoint::*;
+pub use upload::*;
