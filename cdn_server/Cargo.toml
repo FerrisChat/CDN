@@ -31,3 +31,7 @@ features = ["tokio", "zstd"]
 [dependencies.tokio]
 version = "1.14"
 features = ["full"]
+
+[dependencies.cdn_common]
+path = "../cdn_common"
+version = "0.1.0"

@@ -1,11 +1,11 @@
-use clap::Arg;
+use clap::{crate_authors, crate_description, crate_name, crate_version, Arg};
 
 #[tokio::main]
 async fn main() {
     let matches = clap::app_from_crate!()
         .arg(
             Arg::with_name("mode")
-                .short('m')
+                .short("m")
                 .long("mode")
                 .help("The mode that FerrisChat CDN will run on, can be either storage or server")
                 .takes_value(true)
