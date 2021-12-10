@@ -23,7 +23,7 @@ pub enum CdnError {
 
 impl From<ErrorJson> for CdnError {
     fn from(err: ErrorJson) -> Self {
-        Self::http(err)
+        Self::Http(err)
     }
 }
 
