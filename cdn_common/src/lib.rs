@@ -1,11 +1,10 @@
-#[macro_use]
-extern crate serde_derive;
-
 pub use ferrischat_common::types::ErrorJson;
 
 use axum::body::{self, BoxBody};
 use axum::http::Response;
 use axum::response::IntoResponse;
+
+use serde::{Serialize, Deserialize};
 
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
