@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 pub use ferrischat_common::types::ErrorJson;
 
 use axum::body::{self, BoxBody};
@@ -15,8 +18,8 @@ pub struct UploadResponse {
 }
 
 pub enum CdnError {
-    http(ErrorJson),
-    default,
+    Http(ErrorJson),
+    Default,
 }
 
 impl From<ErrorJson> for CdnError {
@@ -28,8 +31,8 @@ impl From<ErrorJson> for CdnError {
 impl IntoResponse for CdnError {
     fn into_response(self) -> Response<BoxBody> {
         let body = match self {
-            CdnError::http(err) => err,
-            CdnError::default => ErrorJson::new_500(
+            CdnError::Http(err) => err,
+            CdnError::Default => ErrorJson::new_500(
                 "Something went wrong while trying to save the file.".to_string(),
                 true,
                 None,
@@ -47,7 +50,7 @@ impl IntoResponse for CdnError {
             }
         };
 
-        axum::http::Response::builder()
+        Response::builder()
             .status(body.get_code())
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .body(body::boxed(body::Full::from(bytes)))
