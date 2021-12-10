@@ -19,7 +19,7 @@ include = [
 [dependencies]
 simd-json = "0.4"
 axum = "0.4"
-serde = "1.0"
+serde-derive = "1.0"
 
 [dependencies.ferrischat_common]
 git = "https://github.com/FerrisChat/Common"
