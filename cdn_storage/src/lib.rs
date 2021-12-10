@@ -1,2 +1,2 @@
-pub use entrypoint::*;
-pub use upload::*;
+pub use self::entrypoint::*;
+pub use self::upload::*;
