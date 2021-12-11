@@ -32,7 +32,7 @@ pub async fn download(Path(filename): Path<String>) -> Result<Response<BoxBody>,
         )
         .header(
             CONTENT_DISPOSITION,
-            HeaderValue::from_static(format!("attachment; filename={}", filename)),
+            HeaderValue::from_static(format!("attachment; filename={}", filename).as_str()),
         )
         .body(body::boxed(body::Full::from(file))) // User facing server will handle decompression
         .unwrap_or_else(|e| {
