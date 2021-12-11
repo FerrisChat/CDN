@@ -38,3 +38,15 @@ features = ["full"]
 [dependencies.cdn_common]
 path = "../cdn_common"
 version = "0.1.0"
+
+[dependencies.deadpool]
+version = "0.9"
+features = ["rt_tokio_1", "serde"]
+
+[dependencies.deadpool-redis]
+version = "0.10"
+features = ["serde"]
+
+[dependencies.redis]
+version = "0.21"
+features = ["aio", "tokio", "tokio-comp"]
