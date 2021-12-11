@@ -3,7 +3,7 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::Router;
 use std::net::SocketAddr;
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::config::STORAGE_PATH;
 
@@ -11,7 +11,7 @@ use tokio::fs;
 
 #[allow(clippy::expect_used)]
 pub async fn entrypoint() {
-    let path = PathBuf::from(*STORAGE_PATH.clone());
+    let path = Path::from(*STORAGE_PATH.clone());
 
     if !path.exists() {
         fs::create_dir(path)

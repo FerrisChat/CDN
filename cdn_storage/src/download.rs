@@ -3,7 +3,7 @@ use cdn_common::CdnError;
 use axum::body::{self, BoxBody};
 use axum::extract::Path;
 
-use http::header::{CONTENT_TYPE, CONTENT_DISPOSITION};
+use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 use http::{Response, StatusCode};
 
