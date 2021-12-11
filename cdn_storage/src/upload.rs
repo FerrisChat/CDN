@@ -30,9 +30,7 @@ pub async fn upload(
             buffer.append(&mut data.to_vec());
         }
 
-        let buffer_ref = &buffer[..]
-
-        let hash = tokio::task::spawn_blocking(move || Hash::hash(buffer_ref)).await.map_err(|e| CdnError::FailedToSpawnBlock(e))?;
+        let hash = tokio::task::block_in_place(move || Hash::hash(&buffer[..]));
 
         let file_hash = hash.iter().map(|x| format!("{:02x}", x)).collect::<String>();
 
@@ -57,9 +55,7 @@ pub async fn upload(
             ));
         }
 
-        let compressed: Vec<u8> = Vec::new();
-
-        let mut encoder = ZstdEncoder::with_quality(&mut compressed, Level::Best);
+        let mut encoder = ZstdEncoder::with_quality(Vec::new(), Level::Best);
         encoder
             .write_all(&buffer)
             .await
@@ -69,7 +65,7 @@ pub async fn upload(
             .await
             .map_err(|e| CdnError::FailedToCompress(e))?;
 
-        fs::write(path, &compressed[..])
+        fs::write(path, &encoder.into_inner()[..])
             .await
             .map_err(|e| CdnError::FailedToSave(e))?;
 
