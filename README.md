@@ -1,2 +1,2 @@
 # CDN
-FerrisChat's CDN, running on `cdn.ferris.chat`. Serves uploaded images.
+FerrisChat's CDN, running on `cdn.ferris.chat`. Serves uploaded images and other files.
