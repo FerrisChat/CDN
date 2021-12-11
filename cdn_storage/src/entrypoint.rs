@@ -12,7 +12,7 @@ use std::fs;
 
 pub async fn entrypoint() {
     fs::create_dir_all(STORAGE_PATH.to_string())
-        .map_err(|e| match e {
+        .map_err(|e| match e.kind() {
             AlreadyExists => (),
             _ => panic!("Failed to create uploads directory: {:?}", e)
         });
