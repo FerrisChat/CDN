@@ -1,9 +1,9 @@
 pub use ferrischat_common::types::ErrorJson;
 
 use axum::body::{self, BoxBody};
+use axum::extract::multipart::MultipartError as AxumMultipartError;
 use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
-use axum::extract::multipart::MultipartError as AxumMultipartError;
 
 use tokio::task::JoinError;
 
@@ -26,6 +26,8 @@ pub enum CdnError {
     FileSizeExceeded,
     NoFileName,
     MultipartError(AxumMultipartError),
+    NotFound,
+    FailedToOpen(IoError),
     NoFileExtension,
     FailedToCompress(IoError),
     FailedToSpawnBlock(JoinError),
@@ -66,6 +68,14 @@ impl IntoResponse for CdnError {
             CdnError::MultipartError(err) => (
                 ErrorJson::new_400(format!("Failed to parse multipart: {:?}", err)).into(),
                 StatusCode::BAD_REQUEST,
+            ),
+            CdnError::NotFound => (
+                ErrorJson::new_404("File not found".to_string()).into(),
+                StatusCode::NOT_FOUND,
+            ),
+            CdnError::FailedToOpen(err) => (
+                ErrorJson::new_500(format!("Failed to open file: {:?}", err)).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileExtension => (
                 ErrorJson::new_400("No file extension provided".to_string()).into(),

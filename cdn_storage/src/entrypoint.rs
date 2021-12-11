@@ -1,15 +1,28 @@
-use crate::upload;
+use crate::{download, upload};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
-use std::net::SocketAddr;
 use axum::Router;
+use std::net::SocketAddr;
+use std::path::PathBuf;
+
+use crate::config::STORAGE_PATH;
+
+use tokio::fs;
 
 #[allow(clippy::expect_used)]
 pub async fn entrypoint() {
+    let path = PathBuf::from(*STORAGE_PATH);
+
+    if !path.exists() {
+        fs::create_dir(path)
+            .await
+            .expect("Failed to create uploads directory");
+    }
+
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
-        .route("/upload", post(upload));
-    // .route("/download/:filename", get(download));
+        .route("/upload", post(upload))
+        .route("/download/:filename", get(download));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 80));
 

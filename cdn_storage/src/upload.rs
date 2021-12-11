@@ -3,9 +3,11 @@ use axum::Json;
 
 use async_compression::{tokio::write::ZstdEncoder, Level};
 use cdn_common::{CdnError, UploadResponse};
-use futures::stream::StreamExt;
 use hmac_sha512::Hash;
 use std::path::PathBuf;
+use tokio::stream::StreamExt;
+
+use crate::config::{HOST, STORAGE_PATH};
 
 use tokio::{fs, io::AsyncWriteExt as _}; // for `write_all` and `shutdown`
 
@@ -32,7 +34,10 @@ pub async fn upload(
 
         let hash = tokio::task::block_in_place(|| Hash::hash(&buffer[..]));
 
-        let file_hash = hash.iter().map(|x| format!("{:02x}", x)).collect::<String>();
+        let file_hash = hash
+            .iter()
+            .map(|x| format!("{:02x}", x))
+            .collect::<String>();
 
         let ext = field
             .file_name()
@@ -41,15 +46,12 @@ pub async fn upload(
             .last()
             .ok_or_else(|| CdnError::NoFileExtension)?;
 
-        let path = PathBuf::from(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext));
+        let path = PathBuf::from(format!("{}/{}.{}", *STORAGE_PATH, file_hash, ext));
 
         if path.exists() {
             return Ok(Json(
                 UploadResponse {
-                    url: format!(
-                        "https://cdn.ferrischat.com/node/uploads/{}.{}",
-                        file_hash, ext
-                    ),
+                    url: format!("{}/node/uploads/{}.{}", *HOST, file_hash, ext),
                 }
                 .into(),
             ));
@@ -71,10 +73,7 @@ pub async fn upload(
 
         Ok(Json(
             UploadResponse {
-                url: format!(
-                    "https://cdn.ferrischat.com/node/uploads/{}.{}",
-                    file_hash, ext
-                ),
+                url: format!("{}/node/uploads/{}.{}", *HOST, file_hash, ext),
             }
             .into(),
         ))
