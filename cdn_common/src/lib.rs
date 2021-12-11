@@ -1,10 +1,10 @@
 pub use ferrischat_common::types::ErrorJson;
 
 use axum::body::{self, BoxBody};
-use axum::http::Response;
+use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
@@ -19,6 +19,12 @@ pub struct UploadResponse {
 pub enum CdnError {
     Http(ErrorJson),
     Default,
+    FileSizeExceeded,
+    FailedToHash,
+    NoFileName,
+    NoFileExtension,
+    FailedToCompress,
+    FailedToSave,
 }
 
 impl From<ErrorJson> for CdnError {
@@ -29,12 +35,43 @@ impl From<ErrorJson> for CdnError {
 
 impl IntoResponse for CdnError {
     fn into_response(self) -> Response<BoxBody> {
-        let body = match self {
-            CdnError::Http(err) => err,
-            CdnError::Default => ErrorJson::new_500(
-                "Something went wrong while trying to save the file.".to_string(),
-                true,
-                None,
+        let (body, status_code) = match self {
+            CdnError::Http(err) => (err, StatusCode::BAD_REQUEST),
+            CdnError::Default => (
+                ErrorJson::new_500(
+                    "Something went wrong while trying to save the file.".to_string(),
+                    true,
+                    None,
+                )
+                .into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            CdnError::FileSizeExceeded => (
+                ErrorJson::new_400(
+                    "File size exceeded. Please try again with a smaller file.".to_string(),
+                )
+                .into(),
+                StatusCode::PayloadTooLarge,
+            ),
+            CdnError::FailedToHash => (
+                ErrorJson::new_500("Failed to hash the file".to_string(), true, None).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            CdnError::NoFileName => (
+                ErrorJson::new_400("No file name provided".to_string()).into(),
+                StatusCode::BAD_REQUEST,
+            ),
+            CdnError::NoFileExtension => (
+                ErrorJson::new_400("No file extension provided".to_string()).into(),
+                StatusCode::BAD_REQUEST,
+            ),
+            CdnError::FailedToCompress => (
+                ErrorJson::new_500("Failed to compress the file".to_string(), true, None).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            CdnError::FailedToSave => (
+                ErrorJson::new_500("Failed to save the file".to_string(), true, None).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
             ),
         };
 
@@ -50,7 +87,7 @@ impl IntoResponse for CdnError {
         };
 
         Response::builder()
-            .status(body.get_code())
+            .status(status_code)
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .body(body::boxed(body::Full::from(bytes)))
             .unwrap_or_else(|e| {
