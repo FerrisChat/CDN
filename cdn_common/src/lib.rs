@@ -25,6 +25,7 @@ pub enum CdnError {
     NoFileExtension,
     FailedToCompress,
     FailedToSave,
+    NoFile,
 }
 
 impl From<ErrorJson> for CdnError {
@@ -72,6 +73,10 @@ impl IntoResponse for CdnError {
             CdnError::FailedToSave => (
                 ErrorJson::new_500("Failed to save the file".to_string(), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            CdnError::NoFile => (
+                ErrorJson::new_400("No file provided".to_string()).into(),
+                StatusCode::BAD_REQUEST,
             ),
         };
 

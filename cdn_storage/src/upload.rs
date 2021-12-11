@@ -81,5 +81,7 @@ pub async fn upload(
             }
             .into(),
         ))
+    } else {
+        Err(CdnError::NoFile)
     }
 }
