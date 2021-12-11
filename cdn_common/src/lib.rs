@@ -5,6 +5,8 @@ use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
 use axum::extract::multipart::MultipartError as AxumMultipartError;
 
+use tokio::task::JoinError;
+
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
@@ -26,6 +28,7 @@ pub enum CdnError {
     MultipartError(AxumMultipartError),
     NoFileExtension,
     FailedToCompress(IoError),
+    FailedToSpawnBlock(JoinError),
     FailedToSave(IoError),
     NoFile,
 }
@@ -71,6 +74,15 @@ impl IntoResponse for CdnError {
             CdnError::FailedToCompress(err) => (
                 ErrorJson::new_500(
                     format!("Failed to compress the file: {:?}", err),
+                    true,
+                    None,
+                )
+                .into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            CdnError::FailedToSpawnBlock(err) => (
+                ErrorJson::new_500(
+                    format!("Task failed to execute to completion: {:?}", err),
                     true,
                     None,
                 )

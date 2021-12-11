@@ -30,7 +30,7 @@ pub async fn upload(
             buffer.append(&mut data.to_vec());
         }
 
-        let hash = tokio::task::spawn_blocking(move || Hash::hash(&buffer[..])).await;
+        let hash = tokio::task::spawn_blocking(move || Hash::hash(&buffer[..])).await.map_err(|e| CdnError::FailedToSpawnBlock(e))?;
 
         let file_hash = hash.iter().map(|x| format!("{:02x}", x)).collect::<String>();
 
