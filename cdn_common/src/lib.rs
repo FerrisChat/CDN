@@ -5,6 +5,7 @@ use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
 
 use serde::{Deserialize, Serialize};
+use std::io::Error as IoError;
 
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
@@ -20,11 +21,10 @@ pub enum CdnError {
     Http(ErrorJson),
     Default,
     FileSizeExceeded,
-    FailedToHash,
     NoFileName,
     NoFileExtension,
-    FailedToCompress,
-    FailedToSave,
+    FailedToCompress(IoError),
+    FailedToSave(IoError),
     NoFile,
 }
 
@@ -53,11 +53,6 @@ impl IntoResponse for CdnError {
                 )
                 .into(),
                 StatusCode::PAYLOAD_TOO_LARGE,
-            ),
-            CdnError::FailedToHash(err) => (
-                ErrorJson::new_500(format!("Failed to hash the file: {:?}", err), true, None)
-                    .into(),
-                StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileName => (
                 ErrorJson::new_400("No file name provided".to_string()).into(),
