@@ -3,21 +3,19 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::Router;
 use std::net::SocketAddr;
-use std::path::Path;
+
+use std::io::ErrorKind::AlreadyExists;
 
 use crate::config::STORAGE_PATH;
 
-use tokio::fs;
+use std::fs;
 
-#[allow(clippy::expect_used)]
 pub async fn entrypoint() {
-    let path = Path::from(*STORAGE_PATH.clone());
-
-    if !path.exists() {
-        fs::create_dir(path)
-            .await
-            .expect("Failed to create uploads directory");
-    }
+    fs::create_dir_all(STORAGE_PATH.to_string())
+        .map_err(|e| match e {
+            AlreadyExists => (),
+            _ => panic!("Failed to create uploads directory: {:?}", e)
+        });
 
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
