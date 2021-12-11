@@ -3,19 +3,17 @@ use axum::Json;
 
 use async_compression::{tokio::write::ZstdEncoder, Level};
 use cdn_common::{CdnError, UploadResponse};
+use futures::stream::StreamExt;
 use hmac_sha512::Hash;
 use std::path::PathBuf;
-use futures::stream::StreamExt;
+
+use crate::node::{get_max_content_length, get_node_id};
 
 use crate::config::{HOST, STORAGE_PATH};
 
 use tokio::{fs, io::AsyncWriteExt as _}; // for `write_all` and `shutdown`
 
-const MAX_CONTENT_LENGTH: usize = 1024 * 1024 * 10;
-
-pub async fn upload(
-    ContentLengthLimit(mut multipart): ContentLengthLimit<Multipart, { MAX_CONTENT_LENGTH as u64 }>,
-) -> Result<Json<UploadResponse>, CdnError> {
+pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, CdnError> {
     if let Ok(Some(mut field)) = multipart.next_field().await {
         let mut file_size: usize = 0;
         let mut buffer: Vec<u8> = Vec::new();
@@ -25,7 +23,7 @@ pub async fn upload(
 
             file_size += data.len();
 
-            if file_size > MAX_CONTENT_LENGTH {
+            if file_size > get_max_content_length().await {
                 return Err(CdnError::FileSizeExceeded);
             }
 
@@ -48,10 +46,12 @@ pub async fn upload(
 
         let path = PathBuf::from(format!("{}/{}.{}", *STORAGE_PATH, file_hash, ext));
 
+        let node_id = get_node_id();
+
         if path.exists() {
             return Ok(Json(
                 UploadResponse {
-                    url: format!("{}/node/uploads/{}.{}", *HOST, file_hash, ext),
+                    url: format!("{}/{}/uploads/{}.{}", *HOST, node_id, file_hash, ext),
                 }
                 .into(),
             ));
@@ -73,7 +73,7 @@ pub async fn upload(
 
         Ok(Json(
             UploadResponse {
-                url: format!("{}/node/uploads/{}.{}", *HOST, file_hash, ext),
+                url: format!("{}/{}/uploads/{}.{}", *HOST, node_id, file_hash, ext),
             }
             .into(),
         ))
