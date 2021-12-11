@@ -16,7 +16,7 @@ pub async fn load_redis(node_id: u64) {
         .set(node_id)
         .unwrap_or_else(|_| panic!("Failed to set node id: did you call load_redis twice"));
 
-    let mut cfg = Config::from_url(FC_CDN_REDIS_URL.clone());
+    let mut cfg = Config::from_url(REDIS_URL.clone());
 
     cfg.pool = {
         use core::time::Duration;
