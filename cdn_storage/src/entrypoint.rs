@@ -1,5 +1,3 @@
-#![feature(async_closure)]
-
 use axum::http::StatusCode;
 use axum::Router;
 use axum::routing::{get, post};
