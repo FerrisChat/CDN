@@ -3,9 +3,11 @@ pub use ferrischat_common::types::ErrorJson;
 use axum::body::{self, BoxBody};
 use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
+use axum::extract::multipart::MultipartError as AxumMultipartError;
 
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
+use std::str::Utf8Error;
 
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
@@ -21,7 +23,9 @@ pub enum CdnError {
     Http(ErrorJson),
     Default,
     FileSizeExceeded,
+    FailedToDecodeHash(Utf8Error),
     NoFileName,
+    MultipartError(AxumMultipartError),
     NoFileExtension,
     FailedToCompress(IoError),
     FailedToSave(IoError),
@@ -54,8 +58,21 @@ impl IntoResponse for CdnError {
                 .into(),
                 StatusCode::PAYLOAD_TOO_LARGE,
             ),
+            CdnError::FailedToDecodeHash(err) => (
+                ErrorJson::new_500(
+                    format!("Failed to decode hash to UTF-8", err),
+                    true,
+                    None,
+                )
+                .into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
             CdnError::NoFileName => (
                 ErrorJson::new_400("No file name provided".to_string()).into(),
+                StatusCode::BAD_REQUEST,
+            ),
+            CdnError::MultipartError(err) => (
+                ErrorJson::new_400(format!("Failed to parse multipart", err)).into(),
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::NoFileExtension => (

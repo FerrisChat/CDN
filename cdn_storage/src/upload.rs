@@ -19,6 +19,8 @@ pub async fn upload(
         let mut buffer: Vec<u8> = Vec::new();
 
         while let Some(chunk) = field.next().await {
+            let data = chunk.map_err(|e| CdnError::MultipartError(e))?;
+
             file_size += chunk.len();
 
             if file_size > MAX_CONTENT_LENGTH {
@@ -30,13 +32,14 @@ pub async fn upload(
 
         let hash = tokio::task::spawn_blocking(move || Hash::hash(&buffer[..])).await;
 
-        let file_hash = String::from(hash);
+        let file_hash = hash.as_ref().iter().map(|x| format!("{:02x}", x)).collect::<String>();
 
         let ext = field
             .file_name()
             .ok_or_else(|| CdnError::NoFileName)?
             .split('.')
             .last()
+            .unwrap_or_else(|| Vec::with_capacity(0))
             .ok_or_else(|| CdnError::NoFileExtension)?;
 
         let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
