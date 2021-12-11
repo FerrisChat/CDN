@@ -3,7 +3,7 @@ use cdn_common::CdnError;
 use axum::body::{self, BoxBody};
 use axum::extract::Path;
 
-use http::header::CONTENT_TYPE;
+use http::header::{CONTENT_TYPE, CONTENT_DISPOSITION};
 use http::HeaderValue;
 use http::{Response, StatusCode::OK};
 
@@ -22,7 +22,7 @@ pub async fn download(Path(filename): Path<String>) -> Result<Response<BoxBody>,
 
     let file = fs::File::open(path)
         .await
-        .map_err(|_| CdnError::FailedToOpen(e))?;
+        .map_err(|e| CdnError::FailedToOpen(e))?;
 
     let resp = Response::builder()
         .status(OK)

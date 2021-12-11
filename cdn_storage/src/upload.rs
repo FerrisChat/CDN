@@ -5,7 +5,7 @@ use async_compression::{tokio::write::ZstdEncoder, Level};
 use cdn_common::{CdnError, UploadResponse};
 use hmac_sha512::Hash;
 use std::path::PathBuf;
-use tokio::stream::StreamExt;
+use futures::stream::StreamExt;
 
 use crate::config::{HOST, STORAGE_PATH};
 
