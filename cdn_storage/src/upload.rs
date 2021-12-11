@@ -2,8 +2,8 @@ use axum::extract::{ContentLengthLimit, Multipart};
 use axum::Json;
 
 use async_compression::{tokio::write::ZstdEncoder, Level};
-use cdn_common::{CdnError, ErrorJson, UploadResponse};
-use futures_util::stream::StreamExt;
+use cdn_common::{CdnError, UploadResponse};
+use futures::stream::StreamExt;
 use hmac_sha512::Hash;
 use std::path::Path;
 
@@ -34,11 +34,10 @@ pub async fn upload(
 
         let ext = field
             .file_name()
-            .ok_or_else(|_| CdnError::NoFileName)?
+            .ok_or_else(|| CdnError::NoFileName)?
             .split('.')
-            .unwrap_or_else(|| Vec::with_capacity(0))
             .last()
-            .ok_or_else(|_| CdnError::NoFileExtension)?;
+            .ok_or_else(|| CdnError::NoFileExtension)?;
 
         let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
 
