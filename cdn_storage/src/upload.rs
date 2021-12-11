@@ -30,7 +30,7 @@ pub async fn upload(
             buffer.append(&mut data.to_vec());
         }
 
-        let hash = tokio::task::block_in_place(move || Hash::hash(&buffer[..]));
+        let hash = tokio::task::block_in_place(|| Hash::hash(&buffer[..]));
 
         let file_hash = hash.iter().map(|x| format!("{:02x}", x)).collect::<String>();
 
