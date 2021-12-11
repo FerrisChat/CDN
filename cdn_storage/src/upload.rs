@@ -15,13 +15,13 @@ use tokio::{fs, io::AsyncWriteExt as _}; // for `write_all` and `shutdown`
 
 pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, CdnError> {
     if let Ok(Some(mut field)) = multipart.next_field().await {
-        let mut file_size: usize = 0;
+        let mut file_size: u64 = 0;
         let mut buffer: Vec<u8> = Vec::new();
 
         while let Some(chunk) = field.next().await {
             let data = chunk.map_err(|e| CdnError::MultipartError(e))?;
 
-            file_size += data.len();
+            file_size += data.len() as u64;
 
             if file_size > get_max_content_length().await {
                 return Err(CdnError::FileSizeExceeded);

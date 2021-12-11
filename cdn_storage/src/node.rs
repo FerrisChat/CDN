@@ -1,5 +1,3 @@
-#![feature(once_cell)]
-
 pub use deadpool;
 use deadpool::managed::{PoolConfig, Timeouts};
 pub use deadpool_redis;
@@ -54,7 +52,7 @@ pub async fn get_max_content_length() -> u64 {
 
     redis::cmd("GET")
         .arg("max_content_length")
-        .query_async::<u64>(&mut conn)
+        .query_async::<_, u64>(&mut conn)
         .await
         .unwrap_or(1024 * 1024 * 10);
 }
