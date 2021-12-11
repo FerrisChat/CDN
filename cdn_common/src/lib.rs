@@ -77,7 +77,7 @@ impl IntoResponse for CdnError {
             CdnError::NoFile => (
                 ErrorJson::new_400("No file provided".to_string()).into(),
                 StatusCode::BAD_REQUEST,
-            ),
+            )
         };
 
         let bytes = match simd_json::to_vec(&body) {
