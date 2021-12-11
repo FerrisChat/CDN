@@ -74,7 +74,7 @@ impl IntoResponse for CdnError {
                 StatusCode::NOT_FOUND,
             ),
             CdnError::FailedToOpen(err) => (
-                ErrorJson::new_500(format!("Failed to open file: {:?}", err)).into(),
+                ErrorJson::new_500(format!("Failed to open file: {:?}", err), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileExtension => (
