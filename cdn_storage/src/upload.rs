@@ -21,25 +21,24 @@ pub async fn upload(
         while let Some(chunk) = field.next().await {
             let data = chunk.map_err(|e| CdnError::MultipartError(e))?;
 
-            file_size += chunk.len();
+            file_size += data.len();
 
             if file_size > MAX_CONTENT_LENGTH {
                 return Err(CdnError::FileSizeExceeded);
             }
 
-            buffer.append(&mut chunk.to_vec());
+            buffer.append(&mut data.to_vec());
         }
 
         let hash = tokio::task::spawn_blocking(move || Hash::hash(&buffer[..])).await;
 
-        let file_hash = hash.as_ref().iter().map(|x| format!("{:02x}", x)).collect::<String>();
+        let file_hash = hash.iter().map(|x| format!("{:02x}", x)).collect::<String>();
 
         let ext = field
             .file_name()
             .ok_or_else(|| CdnError::NoFileName)?
             .split('.')
             .last()
-            .unwrap_or_else(|| Vec::with_capacity(0))
             .ok_or_else(|| CdnError::NoFileExtension)?;
 
         let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
