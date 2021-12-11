@@ -2,8 +2,8 @@ use axum::extract::{ContentLengthLimit, Multipart};
 use axum::Json;
 
 use cdn_common::{CdnError, ErrorJson, UploadResponse};
-use std::io::Write;
 use async_compression::{tokio::write::ZstdEncoder, Level};
+use futures::{StreamExt, TryStreamExt};
 use hmac_sha512::Hash;
 use std::path::Path;
 
@@ -28,25 +28,25 @@ pub async fn upload(ContentLengthLimit(mut multipart): ContentLengthLimit<Multip
 
         let hash = tokio::task::spawn_blocking(move || {
             Hash::hash(&buffer[..])
-        }).await.unwrap_or_else(|| Err(CdnError::new_500("Failed to hash file".to_string(), true, None).into()));
+        }).await.unwrap_or_else(|_| Err(ErrorJson::new_500("Failed to hash file".to_string(), true, None).into()));
 
         let file_hash = String::from(hash);
 
-        let ext = multipart.filename.unwrap_or_else(|| Err(ErrorJson::new_400("No file name provided".to_string()).into()).split('.').last().unwrap_or_else(|| ErrorJson::new_400("No file extension found".to_string()).into()));
-        let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext));
+        let ext = field.filename.unwrap_or_else(|| Err(ErrorJson::new_400("No file name provided".to_string()).into()).split('.').unwrap_or_else(|| Vec::with_quality(0)).last().unwrap_or_else(|| ErrorJson::new_400("No file extension found".to_string()).into()));
+        let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
 
         if path.exists() {
-            return Ok(Json(UploadResponse { url: format!("https://cdn.ferrischat.com/node/uploads/{}.{}", file_hash, ext) }.into(), 302));
+            return Ok(Json(UploadResponse { url: format!("https://cdn.ferrischat.com/node/uploads/{}.{}", file_hash, ext) }.into()));
         }
 
         let compressed: Vec<u8> = Vec::new();
 
         let mut encoder = ZstdEncoder::with_quality(compressed, Level::Best);
         encoder.write_all(&buffer).await.map_err(|e| Err(ErrorJson::new_500(format!("Something went wrong during compression: {:?}", e), true, None).into()));
-        encoder.shutdown.await.map_err(|e| ErrorJson::new_500(format!("Something went wrong during compression: {:?}", e), true, None).into());
+        encoder.shutdown().await.map_err(|e| ErrorJson::new_500(format!("Something went wrong during compression: {:?}", e), true, None).into());
 
         fs::write(path, &compressed[..]).await.map_err(|e| Err(ErrorJson::new_500(format!("Something went wrong while saving file: {:?}", e), true, None).into()));
 
-        Ok(Json(UploadResponse { url: format!("https://cdn.ferrischat.com/node/uploads/{}.{}", file_hash, ext) }.into(), 200))
+        Ok(Json(UploadResponse { url: format!("https://cdn.ferrischat.com/node/uploads/{}.{}", file_hash, ext) }.into()))
     }
 }

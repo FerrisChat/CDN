@@ -8,10 +8,10 @@ use crate::upload;
 pub async fn entrypoint() {
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
-        .route("/upload", get(upload))
-        .route("/download/:filename", post(download));
+        .route("/upload", get(upload));
+        // .route("/download/:filename", post(download));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:80").await?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:80").await.expect("Failed to bind TCP Listener.");
     let acceptor = hyper::server::accept::from_stream(stream);
 
     let server = axum::Server::builder(acceptor).serve(router.into_make_service()).with_graceful_shutdown(async {
