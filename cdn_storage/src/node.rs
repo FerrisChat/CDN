@@ -4,8 +4,6 @@ pub use deadpool_redis;
 use deadpool_redis::{Config, Pool, Runtime};
 
 pub use redis;
-use redis::aio::PubSub;
-use redis::{Client, RedisResult};
 use std::lazy::SyncOnceCell as OnceCell;
 
 use crate::config::FC_CDN_REDIS_URL;
@@ -54,11 +52,11 @@ pub async fn get_max_content_length() -> u64 {
         .arg("max_content_length")
         .query_async::<_, u64>(&mut conn)
         .await
-        .unwrap_or(1024 * 1024 * 10);
+        .unwrap_or(1024 * 1024 * 10)
 }
 
 pub fn get_node_id() -> u64 {
-    NODE_ID.get().unwrap_or_else(|| {
+    *NODE_ID.get().unwrap_or_else(|| {
         panic!("Node id not initialized: did you call load_redis()?");
     })
 }
