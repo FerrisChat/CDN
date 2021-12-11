@@ -3,7 +3,7 @@ use axum::Json;
 
 use async_compression::{tokio::write::ZstdEncoder, Level};
 use cdn_common::{CdnError, ErrorJson, UploadResponse};
-use futures::{StreamExt, TryStreamExt};
+use futures_util::stream::StreamExt;
 use hmac_sha512::Hash;
 use std::path::Path;
 
@@ -34,7 +34,7 @@ pub async fn upload(
 
         let ext = field
             .file_name()
-            .map_err(|_| CdnError::NoFileName)?
+            .ok_or_else(|_| CdnError::NoFileName)?
             .split('.')
             .unwrap_or_else(|| Vec::with_capacity(0))
             .last()
@@ -43,7 +43,7 @@ pub async fn upload(
         let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
 
         if path.exists() {
-            Ok(Json(
+            return Ok(Json(
                 UploadResponse {
                     url: format!(
                         "https://cdn.ferrischat.com/node/uploads/{}.{}",
@@ -51,7 +51,7 @@ pub async fn upload(
                     ),
                 }
                 .into(),
-            ))
+            ));
         }
 
         let compressed: Vec<u8> = Vec::new();

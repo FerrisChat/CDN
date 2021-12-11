@@ -7,8 +7,8 @@ use axum::Router;
 pub async fn entrypoint() {
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
-        .route("/upload", get(upload));
-    // .route("/download/:filename", post(download));
+        .route("/upload", post(upload));
+    // .route("/download/:filename", get(download));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:80")
         .await
