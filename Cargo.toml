@@ -14,7 +14,7 @@ tokio = { version = "1.14", features = ["full"] }
 env_logger = "0.9"
 clap = "~2.27.0"
 tracing = "0.1"
-tracing-subscriber = "0.3"
+tracing-subscriber = "0.2"
 
 cdn_server = { path = "./cdn_server", version = "0.1.0" }
 cdn_storage = { path = "./cdn_storage", version = "0.1.0" }
