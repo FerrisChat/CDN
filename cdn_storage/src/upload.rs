@@ -41,7 +41,7 @@ pub async fn upload(
             .last()
             .ok_or_else(|| CdnError::NoFileExtension)?;
 
-        let path = PathBuf::from(format!("/etc/ferrischat/CDN/uploads", file_hash, ext));
+        let path = PathBuf::from(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext));
 
         if path.exists() {
             return Ok(Json(
