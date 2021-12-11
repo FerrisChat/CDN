@@ -30,7 +30,7 @@ pub async fn upload(
 
         let hash = tokio::task::spawn_blocking(move || Hash::hash(&buffer[..]))
             .await
-            .map_err(|_| CdnError::FailedToHash)?;
+            .map_err(|e| CdnError::FailedToHash(e))?;
 
         let file_hash = String::from(hash);
 
@@ -62,15 +62,15 @@ pub async fn upload(
         encoder
             .write_all(&buffer)
             .await
-            .map_err(|_| CdnError::FailedToCompress)?;
+            .map_err(|e| CdnError::FailedToCompress(e))?;
         encoder
             .shutdown()
             .await
-            .map_err(|_| CdnError::FailedToCompress)?;
+            .map_err(|e| CdnError::FailedToCompress(e))?;
 
         fs::write(path, &compressed[..])
             .await
-            .map_err(|_| CdnError::FailedToSave)?;
+            .map_err(|e| CdnError::FailedToSave(e))?;
 
         Ok(Json(
             UploadResponse {

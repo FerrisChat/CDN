@@ -54,8 +54,8 @@ impl IntoResponse for CdnError {
                 .into(),
                 StatusCode::PAYLOAD_TOO_LARGE,
             ),
-            CdnError::FailedToHash => (
-                ErrorJson::new_500("Failed to hash the file".to_string(), true, None).into(),
+            CdnError::FailedToHash(err) => (
+                ErrorJson::new_500(format!("Failed to hash the file: {:?}", err), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileName => (
@@ -66,12 +66,12 @@ impl IntoResponse for CdnError {
                 ErrorJson::new_400("No file extension provided".to_string()).into(),
                 StatusCode::BAD_REQUEST,
             ),
-            CdnError::FailedToCompress => (
-                ErrorJson::new_500("Failed to compress the file".to_string(), true, None).into(),
+            CdnError::FailedToCompress(err) => (
+                ErrorJson::new_500(format!("Failed to compress the file: {:?}", err), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
-            CdnError::FailedToSave => (
-                ErrorJson::new_500("Failed to save the file".to_string(), true, None).into(),
+            CdnError::FailedToSave(err) => (
+                ErrorJson::new_500(format!("Failed to save the file: {:?}"), err), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFile => (
