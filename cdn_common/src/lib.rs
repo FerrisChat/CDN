@@ -51,7 +51,7 @@ impl IntoResponse for CdnError {
                     "File size exceeded. Please try again with a smaller file.".to_string(),
                 )
                 .into(),
-                StatusCode::PayloadTooLarge,
+                StatusCode::PAYLOAD_TOO_LARGE,
             ),
             CdnError::FailedToHash => (
                 ErrorJson::new_500("Failed to hash the file".to_string(), true, None).into(),
