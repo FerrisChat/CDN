@@ -5,7 +5,7 @@ use async_compression::{tokio::write::ZstdEncoder, Level};
 use cdn_common::{CdnError, UploadResponse};
 use futures::stream::StreamExt;
 use hmac_sha512::Hash;
-use std::path::Path;
+use std::path::PathBuf;
 
 use tokio::{fs, io::AsyncWriteExt as _}; // for `write_all` and `shutdown`
 
@@ -41,7 +41,7 @@ pub async fn upload(
             .last()
             .ok_or_else(|| CdnError::NoFileExtension)?;
 
-        let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
+        let path = PathBuf::new().push("/etc/ferrischat/CDN/uploads").set_file_name(file_hash).set_extension(ext);
 
         if path.exists() {
             return Ok(Json(
