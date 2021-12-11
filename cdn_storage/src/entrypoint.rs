@@ -11,7 +11,7 @@ use tokio::fs;
 
 #[allow(clippy::expect_used)]
 pub async fn entrypoint() {
-    let path = Path::from(*STORAGE_PATH.clone());
+    let path = PathBuf::from(*STORAGE_PATH.clone());
 
     if !path.exists() {
         fs::create_dir(path)

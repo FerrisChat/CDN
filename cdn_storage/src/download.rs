@@ -30,10 +30,6 @@ pub async fn download(Path(filename): Path<String>) -> Result<Response<BoxBody>,
             CONTENT_TYPE,
             HeaderValue::from_static("application/octet-stream"),
         )
-        .header(
-            CONTENT_DISPOSITION,
-            HeaderValue::from_static(format!("attachment; filename={}", filename).as_str()),
-        )
         .body(body::boxed(body::Full::from(file))) // User facing server will handle decompression
         .unwrap_or_else(|e| {
             // this should only be reachable if a invalid HTTP code is passed in
