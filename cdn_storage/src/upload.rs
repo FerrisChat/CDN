@@ -32,7 +32,7 @@ pub async fn upload(ContentLengthLimit(mut multipart): ContentLengthLimit<Multip
 
         let file_hash = String::from(hash);
 
-        let ext = field.filename.unwrap_or_else(|| Err(ErrorJson::new_400("No file name provided".to_string()).into()).split('.').unwrap_or_else(|| Vec::with_quality(0)).last().unwrap_or_else(|| ErrorJson::new_400("No file extension found".to_string()).into()));
+        let ext = field.file_name.unwrap_or_else(|| Err(ErrorJson::new_400("No file name provided".to_string()).into()).split('.').unwrap_or_else(|| Vec::with_capacity(0)).last().unwrap_or_else(|| ErrorJson::new_400("No file extension found".to_string()).into()));
         let path = Path::new(format!("/etc/ferrischat/CDN/uploads/{}.{}", file_hash, ext).as_ref());
 
         if path.exists() {
