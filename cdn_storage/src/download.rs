@@ -5,7 +5,7 @@ use axum::extract::Path;
 
 use http::header::{CONTENT_TYPE, CONTENT_DISPOSITION};
 use http::HeaderValue;
-use http::{Response, StatusCode::OK};
+use http::{Response, StatusCode};
 
 use crate::config::STORAGE_PATH;
 
@@ -20,12 +20,12 @@ pub async fn download(Path(filename): Path<String>) -> Result<Response<BoxBody>,
         return Err(CdnError::NotFound);
     }
 
-    let file = fs::File::open(path)
+    let file = fs::read(path)
         .await
         .map_err(|e| CdnError::FailedToOpen(e))?;
 
     let resp = Response::builder()
-        .status(OK)
+        .status(StatusCode::OK)
         .header(
             CONTENT_TYPE,
             HeaderValue::from_static("application/octet-stream"),
