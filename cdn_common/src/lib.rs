@@ -55,7 +55,8 @@ impl IntoResponse for CdnError {
                 StatusCode::PAYLOAD_TOO_LARGE,
             ),
             CdnError::FailedToHash(err) => (
-                ErrorJson::new_500(format!("Failed to hash the file: {:?}", err), true, None).into(),
+                ErrorJson::new_500(format!("Failed to hash the file: {:?}", err), true, None)
+                    .into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileName => (
@@ -67,17 +68,23 @@ impl IntoResponse for CdnError {
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::FailedToCompress(err) => (
-                ErrorJson::new_500(format!("Failed to compress the file: {:?}", err), true, None).into(),
+                ErrorJson::new_500(
+                    format!("Failed to compress the file: {:?}", err),
+                    true,
+                    None,
+                )
+                .into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToSave(err) => (
-                ErrorJson::new_500(format!("Failed to save the file: {:?}"), err), true, None).into(),
+                ErrorJson::new_500(format!("Failed to save the file: {:?}", err), true, None)
+                    .into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFile => (
                 ErrorJson::new_400("No file provided".to_string()).into(),
                 StatusCode::BAD_REQUEST,
-            )
+            ),
         };
 
         let bytes = match simd_json::to_vec(&body) {
