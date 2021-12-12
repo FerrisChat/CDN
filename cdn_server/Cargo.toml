@@ -21,6 +21,8 @@ hyper = "*"
 hmac-sha512 = "1.1"
 rand = "0.8"
 bytes = "1.1"
+lazy_static = "1.4"
+
 
 [dependencies.axum]
 version = "0.4"
