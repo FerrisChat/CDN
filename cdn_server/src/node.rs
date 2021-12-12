@@ -6,6 +6,8 @@ use deadpool_redis::{Config, Pool, Runtime};
 pub use redis;
 use std::lazy::SyncOnceCell as OnceCell;
 
+use cdn_common::CdnError;
+
 use crate::config::REDIS_URL;
 
 pub static REDIS_MANAGER: OnceCell<Pool> = OnceCell::new();
