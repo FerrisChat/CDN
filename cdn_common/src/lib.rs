@@ -12,6 +12,8 @@ use std::io::Error as IoError;
 
 use reqwest::Error as ReqwestError;
 
+use deadpool::managed::PoolError;
+
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 
@@ -28,6 +30,7 @@ pub enum CdnError {
     FileSizeExceeded,
     NoFileName,
     MultipartError(AxumMultipartError),
+    FailedToOpenRedisConnection(PoolError),
     FailedToGetNode,
     NotFound,
     FailedToOpen(IoError),
@@ -73,6 +76,10 @@ impl IntoResponse for CdnError {
             CdnError::MultipartError(err) => (
                 ErrorJson::new_400(format!("Failed to parse multipart: {:?}", err)).into(),
                 StatusCode::BAD_REQUEST,
+            ),
+            CdnError::FailedToOpenRedisConnection(err) => (
+                ErrorJson::new_500(format!("Failed to open redis connection: {:?}", err)).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToGetNode => (
                 ErrorJson::new_500("Failed to get node from redis.".to_string(), true, None).into(),

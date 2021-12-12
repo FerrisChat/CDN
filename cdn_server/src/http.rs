@@ -32,7 +32,7 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
     if !status.is_success() {
         return Err(CdnError::RequestFailed(
             resp.text().await.unwrap_or("".to_string()),
-            status().as_u16(),
+            status.as_u16(),
         ));
     }
 
@@ -48,7 +48,7 @@ pub async fn upload_file(
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
         .post(format!("http://{}:8085/upload", ip).as_str())
-        .form(form::New().part("file", Part::bytes(bytes).file_name(file_name)))
+        .form(Form::New().part("file", Part::bytes(bytes).file_name(file_name)))
         .send()
         .await
         .map_err(|e| CdnError::ReqwestFailed(e))?;
@@ -58,7 +58,7 @@ pub async fn upload_file(
     if !status.is_success() {
         return Err(CdnError::RequestFailed(
             resp.text().await.unwrap_or("".to_string()),
-            status().as_u16(),
+            status.as_u16(),
         ));
     }
 

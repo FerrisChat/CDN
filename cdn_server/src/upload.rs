@@ -15,9 +15,9 @@ pub async fn upload(mut multipart: Multipart) -> Result<UploadResponse, CdnError
 
         let file_name = field.file_name().ok_or_else(|| CdnError::NoFileName)?;
 
-        let nodes = get_all_nodes().await.ok_or_else(|| CdnError::FailedToGetNode)?;
+        let nodes = get_all_nodes().await?;
         let node = nodes.choose(&mut thread_rng()).ok_or_else(|| CdnError::FailedToGetNode)?;
-        let ip = get_node_ip(node).await.ok_or_else(|| CdnError::FailedToGetNode)?;
+        let ip = get_node_ip(node).await?;
 
         Ok(Json(upload_file(ip, file_name, buffer).await?))
     }

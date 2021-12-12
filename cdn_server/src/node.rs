@@ -11,10 +11,6 @@ use crate::config::REDIS_URL;
 pub static REDIS_MANAGER: OnceCell<Pool> = OnceCell::new();
 
 pub async fn load_redis() {
-    NODE_ID
-        .set(node_id)
-        .unwrap_or_else(|_| panic!("Failed to set node id: did you call load_redis twice"));
-
     let mut cfg = Config::from_url(REDIS_URL.clone());
 
     cfg.pool = {
@@ -37,29 +33,31 @@ pub async fn load_redis() {
     });
 }
 
-pub async fn get_node_ip(node_id: String) -> Option<String> {
+pub async fn get_node_ip(node_id: String) -> Result<String, CdnError> {
     let pool = REDIS_MANAGER.get().unwrap_or_else(|| {
         panic!("Redis pool not initialized: did you call load_redis()?");
     });
 
-    let mut conn = pool.get().await?;
+    let mut conn = pool.get().await.map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
 
     redis::cmd("HGET")
         .arg("cdn_nodes")
         .arg(node_id)
         .query_async::<_, String>(&mut conn)
-        .await?
+        .await
+        .map_err(|_| CdnError::FailedToGetNode)?
 }
 
-pub async fn get_all_nodes() -> Option<Vec<String>> {
+pub async fn get_all_nodes() -> Result<Vec<String>, CdnError> {
     let pool = REDIS_MANAGER.get().unwrap_or_else(|| {
         panic!("Redis pool not initialized: did you call load_redis()?");
     });
 
-    let mut conn = pool.get().await?;
+    let mut conn = pool.get().await.map_err(|e| CdnError::FailedToOpenRedisConnection(e));
 
     redis::cmd("HKEYS")
         .arg("cdn_nodes")
         .query_async::<_, Vec<String>>(&mut conn)
-        .await?
+        .await
+        .map_err(|_| CdnError::FailedToGetNode)?
 }
