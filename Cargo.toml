@@ -7,7 +7,7 @@ authors = ["FerrisChat Team <crates@ferris.chat>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["cdn_server", "cdn_storage", "cdn_common"]
+members = ["cdn_server", "cdn_storage", "cdn_common", "cdn_auth"]
 
 [dependencies]
 tokio = { version = "1.14", features = ["full"] }
@@ -19,3 +19,4 @@ tracing-subscriber = "0.2"
 cdn_server = { path = "./cdn_server", version = "0.1.0" }
 cdn_storage = { path = "./cdn_storage", version = "0.1.0" }
 cdn_common = { path = "./cdn_common", version = "0.1.0" }
+cdn_auth = { path = "./cdn_auth", version = "0.1.0" }

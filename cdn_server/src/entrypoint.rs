@@ -6,10 +6,12 @@ use std::net::SocketAddr;
 
 use crate::http::load_http;
 use crate::node::load_redis;
+use cdn_auth::load_db;
 
 pub async fn entrypoint() {
     load_redis().await;
     load_http();
+    load_db().await;
 
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))

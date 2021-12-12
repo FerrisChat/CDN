@@ -1,9 +1,9 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
-use futures::stream::StreamExt;
 use axum::extract::Multipart;
 use axum::Json;
+use futures::stream::StreamExt;
 
 use cdn_common::{CdnError, UploadResponse};
 

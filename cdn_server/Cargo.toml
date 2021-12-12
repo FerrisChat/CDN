@@ -42,6 +42,10 @@ features = ["full"]
 path = "../cdn_common"
 version = "0.1.0"
 
+[dependencies.cdn_auth]
+path = "../cdn_auth"
+version = "0.1.0"
+
 [dependencies.reqwest]
 version = "0.11"
 features = ["json", "multipart"]

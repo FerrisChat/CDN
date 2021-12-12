@@ -48,7 +48,7 @@ pub enum CdnError {
 
 impl From<ErrorJson> for CdnError {
     fn from(err: ErrorJson) -> Self {
-        Self::Http(err)
+        Self::Http(err.into())
     }
 }
 
