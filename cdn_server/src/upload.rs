@@ -11,7 +11,10 @@ use cdn_common::{CdnError, UploadResponse};
 use crate::http::upload_file;
 use crate::node::{get_all_nodes, get_node_ip};
 
-pub async fn upload(_: Authorization, mut multipart: Multipart) -> Result<Json<UploadResponse>, CdnError> {
+pub async fn upload(
+    _: Authorization,
+    mut multipart: Multipart,
+) -> Result<Json<UploadResponse>, CdnError> {
     if let Ok(Some(mut field)) = multipart.next_field().await {
         let mut buffer: Vec<u8> = Vec::new();
 
