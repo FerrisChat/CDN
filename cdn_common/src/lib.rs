@@ -80,7 +80,7 @@ impl IntoResponse for CdnError {
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::FailedToOpenRedisConnection(err) => (
-                ErrorJson::new_500(format!("Failed to open redis connection: {:?}", err)).into(),
+                ErrorJson::new_500(format!("Failed to open redis connection: {:?}", err), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToGetNode => (
