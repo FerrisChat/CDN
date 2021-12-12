@@ -2,7 +2,6 @@ use reqwest::Client;
 use std::lazy::SyncOnceCell as OnceCell;
 
 use reqwest::multipart::{Form, Part};
-use reqwest::StatusCode;
 
 use bytes::Bytes;
 use cdn_common::{CdnError, UploadResponse};
@@ -48,7 +47,7 @@ pub async fn upload_file(
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
         .post(format!("http://{}:8085/upload", ip).as_str())
-        .multipart(Form::new().part("file", Part::bytes(&bytes[..]).file_name(file_name)))
+        .multipart(Form::new().part("file", Part::bytes(&bytes[..].clone()).file_name(file_name)))
         .send()
         .await
         .map_err(|e| CdnError::ReqwestFailed(e))?;
