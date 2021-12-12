@@ -1,7 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, crate_version, Arg};
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let matches = clap::app_from_crate!()
         .arg(
             Arg::with_name("mode")
