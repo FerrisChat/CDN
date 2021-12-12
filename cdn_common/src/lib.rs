@@ -10,6 +10,8 @@ use tokio::task::JoinError;
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
+use reqwest::Error as ReqwestError;
+
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 
@@ -30,7 +32,7 @@ pub enum CdnError {
     NotFound,
     FailedToOpen(IoError),
     RequestFailed(String, u16),
-    ReqwestFailed(reqwest::Error),
+    ReqwestFailed(ReqwestError),
     NoFileExtension,
     FailedToCompress(IoError),
     FailedToSpawnBlock(JoinError),
