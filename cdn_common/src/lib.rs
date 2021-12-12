@@ -12,6 +12,8 @@ use std::io::Error as IoError;
 
 use reqwest::Error as ReqwestError;
 
+use redis::RedisError;
+
 use deadpool::managed::PoolError;
 
 use http::header::CONTENT_TYPE;
@@ -30,7 +32,7 @@ pub enum CdnError {
     FileSizeExceeded,
     NoFileName,
     MultipartError(AxumMultipartError),
-    FailedToOpenRedisConnection(PoolError),
+    FailedToOpenRedisConnection(PoolError<RedisError>),
     FailedToGetNode,
     NotFound,
     FailedToOpen(IoError),
