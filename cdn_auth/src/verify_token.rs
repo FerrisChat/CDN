@@ -1,27 +1,9 @@
 use num_bigint::BigInt;
 use sqlx::types::BigDecimal;
 
+use cdn_common::VerifyTokenFailure;
+
 use crate::DATABASE_POOL;
-
-pub enum VerifyTokenFailure {
-    MissingDatabase,
-    InvalidToken,
-    DbError(sqlx::Error),
-    VerifierError(argon2_async::Error),
-}
-
-impl From<sqlx::Error> for VerifyTokenFailure {
-    #[inline]
-    fn from(e: sqlx::Error) -> Self {
-        Self::DbError(e)
-    }
-}
-
-impl From<argon2_async::Error> for VerifyTokenFailure {
-    fn from(e: argon2_async::Error) -> Self {
-        Self::VerifierError(e)
-    }
-}
 
 #[allow(clippy::missing_panics_doc)]
 /// Verify a user's token.

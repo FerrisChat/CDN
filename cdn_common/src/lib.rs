@@ -7,7 +7,6 @@ use axum::response::IntoResponse;
 
 use tokio::task::JoinError;
 
-use cdn_auth::{VerifyTokenFailure, SplitTokenError, Argon2Error}
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
@@ -25,6 +24,46 @@ use simd_json;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UploadResponse {
     pub url: String,
+}
+
+use argon2_async::Error as Argon2AsyncError;
+use sqlx::Error as SqlxError;
+
+pub enum VerifyTokenFailure {
+    MissingDatabase,
+    InvalidToken,
+    DbError(SqlxError),
+    VerifierError(Argon2AsyncError),
+}
+
+impl From<sqlx::Error> for VerifyTokenFailure {
+    #[inline]
+    fn from(e: sqlx::Error) -> Self {
+        Self::DbError(e)
+    }
+}
+
+impl From<argon2_async::Error> for VerifyTokenFailure {
+    fn from(e: argon2_async::Error) -> Self {
+        Self::VerifierError(e)
+    }
+}
+
+use base64::DecodeError;
+use std::string::FromUtf8Error;
+
+/// Errors returned when splitting a token into its constituent parts.
+pub enum SplitTokenError {
+    /// Invalid UTF-8 detected
+    InvalidUtf8(FromUtf8Error),
+    /// Invalid base64 encoded data detected
+    Base64DecodeError(DecodeError),
+    /// Invalid integer found in the base64 encoded data.
+    InvalidInteger(std::num::ParseIntError),
+    /// Parts of the token are missing.
+    ///
+    /// The attached integer shows what part is missing. Zero-indexed.
+    MissingParts(u8),
 }
 
 pub enum CdnError {
@@ -52,7 +91,6 @@ impl From<ErrorJson> for CdnError {
         Self::Http(err.into())
     }
 }
-
 
 impl From<VerifyTokenFailure> for WebServerError {
     fn from(e: VerifyTokenFailure) -> Self {

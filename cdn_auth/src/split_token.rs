@@ -1,19 +1,4 @@
-use base64::DecodeError;
-use std::string::FromUtf8Error;
-
-/// Errors returned when splitting a token into its constituent parts.
-pub enum SplitTokenError {
-    /// Invalid UTF-8 detected
-    InvalidUtf8(FromUtf8Error),
-    /// Invalid base64 encoded data detected
-    Base64DecodeError(DecodeError),
-    /// Invalid integer found in the base64 encoded data.
-    InvalidInteger(std::num::ParseIntError),
-    /// Parts of the token are missing.
-    ///
-    /// The attached integer shows what part is missing. Zero-indexed.
-    MissingParts(u8),
-}
+use cdn_common::SplitTokenError;
 
 /// Splits a token into its constituent parts and returns it.
 ///

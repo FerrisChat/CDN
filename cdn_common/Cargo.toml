@@ -25,7 +25,10 @@ redis = "0.21"
 deadpool = "0.9"
 http = "0.2"
 reqwest = { version = "0.11", features=[] }
-cdn_auth = { version = "0.1.0", path = "../cdn_auth" }
+base64 = "0.13"
+argon2-async = "0.1.1"
+
+sqlx = { version = "0.5", features = []}
 
 [dependencies.ferrischat_common]
 git = "https://github.com/FerrisChat/Common"

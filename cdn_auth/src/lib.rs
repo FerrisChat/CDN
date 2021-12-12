@@ -21,6 +21,8 @@ pub use init::init_auth;
 pub use split_token::*;
 pub use verify_token::*;
 
+pub use cdn_common::{SplitTokenError, VerifyTokenFailure};
+
 pub use sqlx;
 
 use config::POSTGRES_URL;
