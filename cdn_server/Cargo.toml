@@ -23,6 +23,11 @@ futures = "0.3"
 rand = "0.8"
 bytes = "1.1"
 lazy_static = "1.4"
+tracing = "0.1"
+
+[dependencies.tower-http]
+version = "0.2.0"
+features = ["trace"]
 
 [dependencies.axum]
 version = "0.4"

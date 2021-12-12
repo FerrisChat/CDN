@@ -4,6 +4,8 @@ use axum::routing::{get, post};
 use axum::Router;
 use std::net::SocketAddr;
 
+use tower_http::trace::TraceLayer;
+
 use std::io::ErrorKind::AlreadyExists;
 
 use crate::config::STORAGE_PATH;
@@ -22,7 +24,8 @@ pub async fn entrypoint(node_id: u64) {
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
         .route("/upload", post(upload))
-        .route("/download/:filename", get(download));
+        .route("/download/:filename", get(download))
+        .layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8085));
 

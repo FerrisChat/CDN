@@ -4,6 +4,9 @@
 #[macro_use]
 extern crate lazy_static;
 
+#[macro_use]
+extern crate tracing;
+
 pub mod config;
 pub mod download;
 pub mod entrypoint;
