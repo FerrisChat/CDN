@@ -43,13 +43,11 @@ pub async fn upload_file(
     file_name: String,
     bytes: Vec<u8>,
 ) -> Result<UploadResponse, CdnError> {
-    let cloned_bytes = bytes.clone();
-
     let resp = CLIENT
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
         .post(format!("http://{}:8085/upload", ip).as_str())
-        .multipart(Form::new().part("file", Part::bytes(&cloned_bytes[..]).file_name(file_name)))
+        .multipart(Form::new().part("file", Part::bytes(&bytes[..]).file_name(file_name)))
         .send()
         .await
         .map_err(|e| CdnError::ReqwestFailed(e))?;
