@@ -7,7 +7,7 @@ pub use redis;
 use std::lazy::SyncOnceCell as OnceCell;
 
 use crate::config::REDIS_URL;
-use ferrischat_common::CdnError;
+use cdn_common::CdnError;
 
 pub static REDIS_MANAGER: OnceCell<Pool> = OnceCell::new();
 pub static NODE_ID: OnceCell<u64> = OnceCell::new();
@@ -53,7 +53,7 @@ pub async fn get_max_content_length() -> Result<u64, CdnError> {
         .arg("max_content_length")
         .query_async::<_, u64>(&mut conn)
         .await
-        .unwrap_or(1024 * 1024 * 10))
+        .unwrap_or(1024 * 1024 * 10 as u64))
 }
 
 pub fn get_node_id() -> u64 {

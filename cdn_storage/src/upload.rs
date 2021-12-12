@@ -23,7 +23,9 @@ pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, Cd
 
             file_size += data.len() as u64;
 
-            if file_size > get_max_content_length().await? {
+            let max_content_length: u64 = get_max_content_length().await?;
+
+            if file_size > max_content_length {
                 return Err(CdnError::FileSizeExceeded);
             }
 
