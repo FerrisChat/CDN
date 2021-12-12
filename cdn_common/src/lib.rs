@@ -108,8 +108,8 @@ impl From<VerifyTokenFailure> for CdnError {
     }
 }
 
-impl From<Argon2Error> for CdnError {
-    fn from(e: Argon2Error) -> Self {
+impl From<Argon2AsyncError> for CdnError {
+    fn from(e: Argon2AsyncError) -> Self {
         let reason = format!(
             "hashing error: {}",
             match e {
