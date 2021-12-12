@@ -21,7 +21,7 @@ pub async fn download(
 
     let file = get_file(node_ip, filename).await?;
 
-    let decoder = ZstdDecoder::new(Vec::new());
+    let mut decoder = ZstdDecoder::new(Vec::new());
     decoder
         .write_all(&file)
         .await
