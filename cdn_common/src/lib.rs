@@ -35,6 +35,7 @@ pub enum CdnError {
     FailedToOpenRedisConnection(PoolError<RedisError>),
     FailedToGetNode,
     NotFound,
+    FailedToDeCompress(IoError),
     FailedToOpen(IoError),
     RequestFailed(String, u16),
     ReqwestFailed(ReqwestError),
@@ -80,7 +81,12 @@ impl IntoResponse for CdnError {
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::FailedToOpenRedisConnection(err) => (
-                ErrorJson::new_500(format!("Failed to open redis connection: {:?}", err), true, None).into(),
+                ErrorJson::new_500(
+                    format!("Failed to open redis connection: {:?}", err),
+                    true,
+                    None,
+                )
+                .into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToGetNode => (
@@ -90,6 +96,10 @@ impl IntoResponse for CdnError {
             CdnError::NotFound => (
                 ErrorJson::new_404("File not found".to_string()).into(),
                 StatusCode::NOT_FOUND,
+            ),
+            CdnError::FailedToDeCompress(err) => (
+                ErrorJson::new_500(format!("Failed to decompress: {:?}", err), true, None).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToOpen(err) => (
                 ErrorJson::new_500(format!("Failed to open file: {:?}", err), true, None).into(),

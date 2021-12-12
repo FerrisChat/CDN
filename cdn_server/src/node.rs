@@ -40,7 +40,10 @@ pub async fn get_node_ip(node_id: String) -> Result<String, CdnError> {
         panic!("Redis pool not initialized: did you call load_redis()?");
     });
 
-    let mut conn = pool.get().await.map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
+    let mut conn = pool
+        .get()
+        .await
+        .map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
 
     Ok(redis::cmd("HGET")
         .arg("cdn_nodes")
@@ -55,7 +58,10 @@ pub async fn get_all_nodes() -> Result<Vec<String>, CdnError> {
         panic!("Redis pool not initialized: did you call load_redis()?");
     });
 
-    let mut conn = pool.get().await.map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
+    let mut conn = pool
+        .get()
+        .await
+        .map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
 
     Ok(redis::cmd("HKEYS")
         .arg("cdn_nodes")
