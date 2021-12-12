@@ -42,13 +42,13 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
 pub async fn upload_file(
     ip: String,
     file_name: String,
-    bytes: Bytes,
+    bytes: Vec<u8>,
 ) -> Result<UploadResponse, CdnError> {
     let resp = CLIENT
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
         .post(format!("http://{}:8085/upload", ip).as_str())
-        .multipart(Form::new().part("file", Part::bytes(bytes.as_ref()).file_name(file_name)))
+        .multipart(Form::new().part("file", Part::bytes(&bytes[..]).file_name(file_name)))
         .send()
         .await
         .map_err(|e| CdnError::ReqwestFailed(e))?;

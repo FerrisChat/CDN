@@ -11,7 +11,12 @@ use crate::http::upload_file;
 
 pub async fn upload(mut multipart: Multipart) -> Result<UploadResponse, CdnError> {
     if let Ok(Some(mut field)) = multipart.next_field().await {
-        let buffer = field.bytes().await.unwrap_or_else(|e| MultipartError(e));
+        let mut buffer: Vec<u8> = Vec::new();
+
+        while let Some(chunk) = field.next().await {
+            let data = chunk.map_err(|e| CdnError::MultipartError(e))?;
+            buffer.append(&mut data.to_vec());
+        }
 
         let file_name = field.file_name().ok_or_else(|| CdnError::NoFileName)?;
 
