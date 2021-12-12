@@ -1,0 +1,23 @@
+{
+    "db": "PostgreSQL",
+    "878a86670eec24ecd8a7e1864d6edd105c177cfbab10a652a947c5491bc6c0ff": {
+      "query": "SELECT (auth_token) FROM auth_tokens WHERE user_id = $1",
+      "describe": {
+        "columns": [
+          {
+            "ordinal": 0,
+            "name": "auth_token",
+            "type_info": "Text"
+          }
+        ],
+        "parameters": {
+          "Left": [
+            "Numeric"
+          ]
+        },
+        "nullable": [
+          false
+        ]
+      }
+    }
+}

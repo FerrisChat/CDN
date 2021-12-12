@@ -26,7 +26,7 @@ pub use cdn_common::{SplitTokenError, VerifyTokenFailure};
 pub use sqlx;
 
 use config::POSTGRES_URL;
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::lazy::SyncOnceCell as OnceCell;
 use std::time::Duration;
