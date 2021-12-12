@@ -10,6 +10,8 @@ use tokio::task::JoinError;
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
+use std::borrow::Cow;
+
 use reqwest::Error as ReqwestError;
 
 use redis::RedisError;
@@ -93,7 +95,7 @@ impl From<ErrorJson> for CdnError {
 }
 
 impl From<SqlxError> for CdnError {
-    fn from(err: SqlxError) -> Self {
+    fn from(e: SqlxError) -> Self {
         if let sqlx::Error::Database(e) = e {
             if e.code() == Some(Cow::from("23505")) {
                 Self::from(ErrorJson::new_409(
