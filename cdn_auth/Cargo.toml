@@ -25,6 +25,7 @@ argon2-async = "0.1.1"
 lazy_static = "1.4"
 axum = "0.4"
 async-trait = "0.1"
+tracing = "0.1"
 
 [dependencies.cdn_common]
 path = "../cdn_common"

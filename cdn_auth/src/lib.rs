@@ -5,6 +5,9 @@
 #[macro_use]
 extern crate lazy_static;
 
+#[macro_use]
+extern crate tracing;
+
 mod auth;
 mod config;
 mod init;

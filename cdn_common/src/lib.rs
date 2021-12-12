@@ -7,6 +7,7 @@ use axum::response::IntoResponse;
 
 use tokio::task::JoinError;
 
+use cdn_auth::{VerifyTokenFailure, SplitTokenError, Argon2Error}
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
@@ -49,6 +50,59 @@ pub enum CdnError {
 impl From<ErrorJson> for CdnError {
     fn from(err: ErrorJson) -> Self {
         Self::Http(err.into())
+    }
+}
+
+
+impl From<VerifyTokenFailure> for WebServerError {
+    fn from(e: VerifyTokenFailure) -> Self {
+        let reason = match e {
+            VerifyTokenFailure::MissingDatabase => "database pool not found".to_string(),
+            VerifyTokenFailure::DbError(e) => return Self::from(e),
+            VerifyTokenFailure::VerifierError(e) => {
+                format!("argon2 verifier returned an error: {}", e)
+            }
+            VerifyTokenFailure::InvalidToken => {
+                unreachable!("a invalid token error should be handled earlier")
+            }
+        };
+        Self::Http(ErrorJson::new_500(reason, false, None))
+    }
+}
+
+impl From<Argon2Error> for WebServerError {
+    fn from(e: Argon2Error) -> Self {
+        let reason = format!(
+            "hashing error: {}",
+            match e {
+                Argon2Error::Communication => {
+                    "an error was encountered while waiting for a background thread to complete."
+                        .to_string()
+                }
+                Argon2Error::Argon(e) =>
+                    format!("underlying argon2 algorithm threw an error: {}", e),
+                Argon2Error::PasswordHash(e) => {
+                    format!("password string handling library threw an error: {}", e)
+                }
+                Argon2Error::MissingConfig => "global configuration unset".to_string(),
+                _ => "unknown error".to_string(),
+            }
+        );
+        Self::Http(ErrorJson::new_500(reason, false, None))
+    }
+}
+
+impl From<SplitTokenError> for WebServerError {
+    fn from(e: SplitTokenError) -> Self {
+        let message = match e {
+            SplitTokenError::InvalidUtf8(e) => format!("invalid utf8 found in token: {}", e),
+            SplitTokenError::Base64DecodeError(e) => {
+                format!("invalid base64 data found in token: {}", e)
+            }
+            SplitTokenError::InvalidInteger(e) => format!("invalid integer found in token: {}", e),
+            SplitTokenError::MissingParts(idx) => format!("part {} of token missing", idx),
+        };
+        Self::Http(ErrorJson::new_400(message))
     }
 }
 
