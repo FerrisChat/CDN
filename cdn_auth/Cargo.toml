@@ -26,6 +26,9 @@ lazy_static = "1.4"
 axum = "0.4"
 async-trait = "0.1"
 
+[dependencies.cdn_common]
+path = "../cdn_common"
+version = "0.1.0"
 
 [dependencies.tokio]
 version = "1.14"
