@@ -7,6 +7,7 @@ pub use redis;
 use std::lazy::SyncOnceCell as OnceCell;
 
 use crate::config::REDIS_URL;
+use ferrischat_common::CdnError;
 
 pub static REDIS_MANAGER: OnceCell<Pool> = OnceCell::new();
 pub static NODE_ID: OnceCell<u64> = OnceCell::new();
@@ -38,7 +39,7 @@ pub async fn load_redis(node_id: u64) {
     });
 }
 
-pub async fn get_max_content_length() -> u64 {
+pub async fn get_max_content_length() -> Result<u64, CdnError> {
     let pool = REDIS_MANAGER.get().unwrap_or_else(|| {
         panic!("Redis pool not initialized: did you call load_redis()?");
     });
@@ -46,13 +47,13 @@ pub async fn get_max_content_length() -> u64 {
     let mut conn = pool
         .get()
         .await
-        .expect("failed to open database connection");
+        .map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
 
-    redis::cmd("GET")
+    Ok(redis::cmd("GET")
         .arg("max_content_length")
         .query_async::<_, u64>(&mut conn)
         .await
-        .unwrap_or(1024 * 1024 * 10)
+        .unwrap_or(1024 * 1024 * 10))
 }
 
 pub fn get_node_id() -> u64 {

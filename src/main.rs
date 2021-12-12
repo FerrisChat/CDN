@@ -53,13 +53,12 @@ async fn main() {
             .expect("failed to build tokio runtime")
             .block_on(entrypoint(node_id));
     } else {
-        // use cdn_server::entrypoint;
+        use cdn_server::entrypoint;
 
-        // tokio::runtime::Builder::new_multi_thread()
-        //     .enable_all()
-        //     .build()
-        //     .expect("failed to build tokio runtime")
-        //     .block_on(entrypoint());
-        println!("Server mode not yet implemented");
+        tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .expect("failed to build tokio runtime")
+            .block_on(entrypoint());
     }
 }

@@ -7,15 +7,16 @@ use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 use http::{Response, StatusCode};
 
-use tokio::io::AsyncWriteExt as _; // for `write_all` and `shutdown`
 use async_compression::tokio::write::ZstdDecoder;
+use tokio::io::AsyncWriteExt as _; // for `write_all` and `shutdown`
 
-use crate::node::get_node_ip;
 use crate::http::get_file;
+use crate::node::get_node_ip;
 
-
-
-pub async fn download(Path(node): Path<String>, Path(filename): Path<String>) -> Result<Response<BoxBody>, CdnError> {
+pub async fn download(
+    Path(node): Path<String>,
+    Path(filename): Path<String>,
+) -> Result<Response<BoxBody>, CdnError> {
     let node_ip = get_node_ip(node).await?;
 
     let file = get_file(node_ip, filename).await?;
