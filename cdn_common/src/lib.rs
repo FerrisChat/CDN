@@ -92,6 +92,30 @@ impl From<ErrorJson> for CdnError {
     }
 }
 
+impl From<SqlxError> for CdnError {
+    fn from(err: SqlxError) -> Self {
+        if let sqlx::Error::Database(e) = e {
+            if e.code() == Some(Cow::from("23505")) {
+                Self::from(ErrorJson::new_409(
+                    "This object is a duplicate.".to_string(),
+                ))
+            } else {
+                Self::from(ErrorJson::new_500(
+                    format!("Database returned an error: {:?}", e),
+                    false,
+                    None,
+                ))
+            }
+        } else {
+            Self::from(ErrorJson::new_500(
+                format!("Database returned an error: {:?}", e),
+                false,
+                None,
+            ))
+        }
+    }
+}
+
 impl From<VerifyTokenFailure> for CdnError {
     fn from(e: VerifyTokenFailure) -> Self {
         let reason = match e {
