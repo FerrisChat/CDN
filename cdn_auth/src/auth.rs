@@ -1,12 +1,12 @@
 use axum::body::Body;
+use async_trait::async_trait;
 use axum::extract::{FromRequest, RequestParts};
-use cdn_common::CdnError;
-use ferrischat_common::types::ErrorJson;
+use cdn_common::{CdnError, ErrorJson};
 use http::header::AUTHORIZATION;
 
 pub struct Authorization(pub u128);
 
-#[async_trait::async_trait]
+#[async_trait]
 impl FromRequest<Body> for Authorization {
     type Rejection = CdnError;
 

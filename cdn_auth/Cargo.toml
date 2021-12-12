@@ -23,6 +23,9 @@ num-bigint = "0.3"
 http = "0.2"
 argon2-async = "0.1.1"
 lazy_static = "1.4"
+axum = "0.4"
+async-trait = "0.1"
+
 
 [dependencies.tokio]
 version = "1.14"
