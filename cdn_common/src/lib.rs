@@ -36,14 +36,14 @@ pub enum VerifyTokenFailure {
     VerifierError(Argon2AsyncError),
 }
 
-impl From<sqlx::Error> for VerifyTokenFailure {
+impl From<SqlxError> for VerifyTokenFailure {
     #[inline]
     fn from(e: sqlx::Error) -> Self {
         Self::DbError(e)
     }
 }
 
-impl From<argon2_async::Error> for VerifyTokenFailure {
+impl From<Argon2AsyncError> for VerifyTokenFailure {
     fn from(e: argon2_async::Error) -> Self {
         Self::VerifierError(e)
     }
@@ -92,7 +92,7 @@ impl From<ErrorJson> for CdnError {
     }
 }
 
-impl From<VerifyTokenFailure> for WebServerError {
+impl From<VerifyTokenFailure> for CdnError {
     fn from(e: VerifyTokenFailure) -> Self {
         let reason = match e {
             VerifyTokenFailure::MissingDatabase => "database pool not found".to_string(),
@@ -108,21 +108,21 @@ impl From<VerifyTokenFailure> for WebServerError {
     }
 }
 
-impl From<Argon2Error> for WebServerError {
+impl From<Argon2Error> for CdnError {
     fn from(e: Argon2Error) -> Self {
         let reason = format!(
             "hashing error: {}",
             match e {
-                Argon2Error::Communication => {
+                Argon2AsyncError::Communication => {
                     "an error was encountered while waiting for a background thread to complete."
                         .to_string()
                 }
-                Argon2Error::Argon(e) =>
+                Argon2AsyncError::Argon(e) =>
                     format!("underlying argon2 algorithm threw an error: {}", e),
-                Argon2Error::PasswordHash(e) => {
+                Argon2AsyncError::PasswordHash(e) => {
                     format!("password string handling library threw an error: {}", e)
                 }
-                Argon2Error::MissingConfig => "global configuration unset".to_string(),
+                Argon2AsyncError::MissingConfig => "global configuration unset".to_string(),
                 _ => "unknown error".to_string(),
             }
         );
@@ -130,7 +130,7 @@ impl From<Argon2Error> for WebServerError {
     }
 }
 
-impl From<SplitTokenError> for WebServerError {
+impl From<SplitTokenError> for CdnError {
     fn from(e: SplitTokenError) -> Self {
         let message = match e {
             SplitTokenError::InvalidUtf8(e) => format!("invalid utf8 found in token: {}", e),
