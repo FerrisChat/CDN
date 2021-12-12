@@ -5,12 +5,13 @@ use axum::extract::Multipart;
 use axum::Json;
 use futures::stream::StreamExt;
 
+use cdn_auth::Authorization;
 use cdn_common::{CdnError, UploadResponse};
 
 use crate::http::upload_file;
 use crate::node::{get_all_nodes, get_node_ip};
 
-pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, CdnError> {
+pub async fn upload(_: Authorization, mut multipart: Multipart) -> Result<Json<UploadResponse>, CdnError> {
     if let Ok(Some(mut field)) = multipart.next_field().await {
         let mut buffer: Vec<u8> = Vec::new();
 
