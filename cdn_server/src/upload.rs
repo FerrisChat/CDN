@@ -1,6 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+use futures::stream::StreamExt;
 use axum::extract::Multipart;
 use axum::Json;
 
@@ -9,7 +10,7 @@ use cdn_common::{CdnError, UploadResponse};
 use crate::http::upload_file;
 use crate::node::{get_all_nodes, get_node_ip};
 
-pub async fn upload(mut multipart: Multipart) -> Result<UploadResponse, CdnError> {
+pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, CdnError> {
     if let Ok(Some(mut field)) = multipart.next_field().await {
         let mut buffer: Vec<u8> = Vec::new();
 
@@ -24,9 +25,9 @@ pub async fn upload(mut multipart: Multipart) -> Result<UploadResponse, CdnError
         let node = nodes
             .choose(&mut thread_rng())
             .ok_or_else(|| CdnError::FailedToGetNode)?;
-        let ip = get_node_ip(node).await?;
+        let ip = get_node_ip(node.to_string()).await?;
 
-        Ok(Json(upload_file(ip, file_name, buffer).await?))
+        Ok(Json(upload_file(ip, file_name.to_string(), buffer).await?))
     } else {
         Err(CdnError::NoFile)
     }
