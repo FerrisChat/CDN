@@ -1,3 +1,8 @@
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
 use clap::{crate_authors, crate_description, crate_name, crate_version, Arg};
 
 fn main() {
