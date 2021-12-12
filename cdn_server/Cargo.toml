@@ -18,7 +18,9 @@ include = [
 
 [dependencies]
 hyper = "*"
-hmac-sha512 = "1.1.1"
+hmac-sha512 = "1.1"
+rand = "0.8"
+bytes = "1.1"
 
 [dependencies.axum]
 version = "0.4"
@@ -35,3 +37,19 @@ features = ["full"]
 [dependencies.cdn_common]
 path = "../cdn_common"
 version = "0.1.0"
+
+[dependencies.reqwest]
+version = "0.11"
+features = ["json", "multipart"]
+
+[dependencies.deadpool]
+version = "0.9"
+features = ["rt_tokio_1", "serde"]
+
+[dependencies.deadpool-redis]
+version = "0.10"
+features = ["serde"]
+
+[dependencies.redis]
+version = "0.21"
+features = ["aio", "tokio", "tokio-comp"]

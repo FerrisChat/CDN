@@ -26,8 +26,11 @@ pub enum CdnError {
     FileSizeExceeded,
     NoFileName,
     MultipartError(AxumMultipartError),
+    FailedToGetNode,
     NotFound,
     FailedToOpen(IoError),
+    RequestFailed(String, u16),
+    ReqwestFailed(reqwest::Error),
     NoFileExtension,
     FailedToCompress(IoError),
     FailedToSpawnBlock(JoinError),
@@ -69,12 +72,24 @@ impl IntoResponse for CdnError {
                 ErrorJson::new_400(format!("Failed to parse multipart: {:?}", err)).into(),
                 StatusCode::BAD_REQUEST,
             ),
+            CdnError::FailedToGetNode => (
+                ErrorJson::new_500("Failed to get node from redis.".to_string(), true, None).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
             CdnError::NotFound => (
                 ErrorJson::new_404("File not found".to_string()).into(),
                 StatusCode::NOT_FOUND,
             ),
             CdnError::FailedToOpen(err) => (
                 ErrorJson::new_500(format!("Failed to open file: {:?}", err), true, None).into(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            CdnError::RequestFailed(err, code) => (
+                ErrorJson::new_500(format!("Request failed: {}", err), true, None).into(),
+                StatusCode::from_u16(code).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            ),
+            CdnError::ReqwestFailed(err) => (
+                ErrorJson::new_500(format!("Reqwest failed: {:?}", err), true, None).into(),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileExtension => (

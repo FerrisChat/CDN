@@ -24,7 +24,7 @@ pub async fn entrypoint(node_id: u64) {
         .route("/upload", post(upload))
         .route("/download/:filename", get(download));
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 80));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8085));
 
     let server = axum::Server::bind(&addr).serve(router.into_make_service()).with_graceful_shutdown(async {
         tokio::signal::ctrl_c().await.expect("failed to wait for ctrl+c: you will need to SIGTERM the server if you want it to shut down");
