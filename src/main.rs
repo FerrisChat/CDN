@@ -5,6 +5,8 @@ static GLOBAL: MiMalloc = MiMalloc;
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, Arg};
 
+use dotenv;
+
 fn main() {
     let matches = clap::app_from_crate!()
         .arg(
@@ -42,6 +44,8 @@ fn main() {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
+
+    dotenv::dotenv().ok();
 
     if mode == "storage" {
         use cdn_storage::entrypoint;
