@@ -51,6 +51,7 @@ version = "0.1.0"
 
 [dependencies.reqwest]
 version = "0.11"
+default-features = false
 features = ["json", "multipart", "rustls-tls"]
 
 [dependencies.deadpool]
