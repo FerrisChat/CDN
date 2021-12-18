@@ -46,7 +46,7 @@ pub async fn load_db() -> Pool<Postgres> {
         .connect(POSTGRES_URL.clone().as_ref())
         .await
         // don't ask
-        .unwrap_or_else(|_| panic!("failed to connect to DB"));
+        .unwrap_or_else(|e| panic!("failed to connect to DB: {}", e));
 
     DATABASE_POOL
         .set(db.clone())
