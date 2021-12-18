@@ -45,7 +45,7 @@ fn main() {
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    dotenv::dotenv().ok();
+    dotenv::dotenv();
 
     if mode == "storage" {
         use cdn_storage::entrypoint;
