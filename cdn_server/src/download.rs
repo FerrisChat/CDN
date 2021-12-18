@@ -31,7 +31,7 @@ pub async fn download(
         .shutdown()
         .await
         .map_err(|e| CdnError::FailedToDeCompress(e))?;
-    
+
     let decoded = decoder.into_inner();
     let content_type = tree_magic::from_u8(&decoded);
 
@@ -39,7 +39,8 @@ pub async fn download(
         .status(StatusCode::OK)
         .header(
             CONTENT_TYPE,
-            HeaderValue::from_str(content_type.as_str()),
+            HeaderValue::from_str(content_type.as_str())
+                .unwrap_or(HeaderValue::from_static("application/octet-stream")),
         )
         .body(body::boxed(body::Full::from(decoded)))
         .unwrap_or_else(|e| {
