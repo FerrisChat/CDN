@@ -53,7 +53,7 @@ pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, Cd
         if path.exists() {
             return Ok(Json(
                 UploadResponse {
-                    url: format!("{}/{}/uploads/{}.{}", *HOST, node_id, file_hash, ext),
+                    url: format!("{}/uploads/{}/{}.{}", *HOST, node_id, file_hash, ext),
                 }
                 .into(),
             ));
@@ -75,7 +75,7 @@ pub async fn upload(mut multipart: Multipart) -> Result<Json<UploadResponse>, Cd
 
         Ok(Json(
             UploadResponse {
-                url: format!("{}/{}/uploads/{}.{}", *HOST, node_id, file_hash, ext),
+                url: format!("{}/uploads/{}/{}.{}", *HOST, node_id, file_hash, ext),
             }
             .into(),
         ))
