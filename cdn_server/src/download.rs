@@ -7,6 +7,8 @@ use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 use http::{Response, StatusCode};
 
+use tree_magic;
+
 use async_compression::tokio::write::ZstdDecoder;
 use tokio::io::AsyncWriteExt as _; // for `write_all` and `shutdown`
 
@@ -29,14 +31,17 @@ pub async fn download(
         .shutdown()
         .await
         .map_err(|e| CdnError::FailedToDeCompress(e))?;
+    
+    let decoded = decoder.into_inner();
+    let content_type = tree_magic::from_u8(&decoded);
 
     let resp = Response::builder()
         .status(StatusCode::OK)
         .header(
             CONTENT_TYPE,
-            HeaderValue::from_static("application/octet-stream"),
+            HeaderValue::from_str(content_type.as_str()),
         )
-        .body(body::boxed(body::Full::from(decoder.into_inner())))
+        .body(body::boxed(body::Full::from(decoded)))
         .unwrap_or_else(|e| {
             // this should only be reachable if a invalid HTTP code is passed in
             unreachable!(

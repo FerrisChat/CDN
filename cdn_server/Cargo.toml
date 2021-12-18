@@ -19,6 +19,7 @@ include = [
 [dependencies]
 hyper = "*"
 http = "0.2"
+tree_magic = "0.2"
 futures = "0.3"
 rand = "0.8"
 bytes = "1.1"
