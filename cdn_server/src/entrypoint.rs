@@ -19,7 +19,7 @@ pub async fn entrypoint() {
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
         .route("/upload", post(upload))
-        .route("/uploads/:node/:filename", get(download))
+        .route("/uploads/:node/*filename", get(download))
         .layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8081));
