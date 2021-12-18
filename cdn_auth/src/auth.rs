@@ -4,7 +4,9 @@ use axum::extract::{FromRequest, RequestParts};
 use cdn_common::{CdnError, ErrorJson};
 use http::header::AUTHORIZATION;
 
-pub struct Authorization(pub u128);
+use crate::config::AUTH_TOKEN;
+
+pub struct Authorization;
 
 #[async_trait]
 impl FromRequest<Body> for Authorization {
@@ -32,16 +34,8 @@ impl FromRequest<Body> for Authorization {
             ))
         })?;
 
-        let (id, secret) = crate::split_token(&*token)?;
-
-        let valid = match crate::verify_token(id, secret).await {
-            Ok(_) => true,
-            Err(crate::VerifyTokenFailure::InvalidToken) => false,
-            Err(e) => return Err(e.into()),
-        };
-        debug!(id = %id, "token valid: {}", valid);
-        if valid {
-            Ok(Self(id))
+        if token == *AUTH_TOKEN {
+            Ok(Self())
         } else {
             Err(ErrorJson::new_401("Authorization header passed was invalid".to_string()).into())
         }

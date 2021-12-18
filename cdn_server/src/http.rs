@@ -23,7 +23,7 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
     let resp = CLIENT
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
-        .get(format!("http://{}:8085/download/{}", ip, file).as_str())
+        .get(format!("http://{}:8085/uploads/{}", ip, file).as_str())
         .send()
         .await
         .map_err(|e| CdnError::ReqwestFailed(e))?;
@@ -39,6 +39,30 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
     }
 
     Ok(resp.bytes().await.map_err(|e| CdnError::ReqwestFailed(e))?)
+}
+
+pub async fn delete_file(ip: String, file: String) -> Result<(), CdnError> {
+    debug!("Attempting to delete file from storage node: {}", ip);
+
+    let resp = CLIENT
+        .get()
+        .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
+        .delete(format!("http://{}:8085/uploads/{}", ip, file).as_str())
+        .send()
+        .await
+        .map_err(|e| CdnError::ReqwestFailed(e))?;
+
+    let status = resp.status();
+
+    if !status.is_success() {
+        debug!("Failed to get file: {}", status);
+        return Err(CdnError::RequestFailed(
+            resp.text().await.unwrap_or("".to_string()),
+            status.as_u16(),
+        ));
+    }
+
+    Ok(())
 }
 
 pub async fn upload_file(

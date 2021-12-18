@@ -1,6 +1,6 @@
-use crate::{download, upload};
+use crate::{delete as delete_route, download as download_route, upload as upload_route};
 use axum::http::StatusCode;
-use axum::routing::{get, post};
+use axum::routing::{delete, get, post};
 use axum::Router;
 use std::net::SocketAddr;
 
@@ -23,8 +23,9 @@ pub async fn entrypoint(node_id: u64) {
 
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
-        .route("/upload", post(upload))
-        .route("/download/*filename", get(download))
+        .route("/upload", post(upload_route))
+        .route("/uploads/*filename", get(download_route))
+        .route("/uploads/*filename", delete(delete_route))
         .layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8085));

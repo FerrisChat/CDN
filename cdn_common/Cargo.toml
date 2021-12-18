@@ -25,10 +25,6 @@ redis = "0.21"
 deadpool = "0.9"
 http = "0.2"
 reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] }
-base64 = "0.13"
-argon2-async = "0.1.1"
-
-sqlx = { version = "0.5", features = []}
 
 [dependencies.ferrischat_common]
 git = "https://github.com/FerrisChat/Common"

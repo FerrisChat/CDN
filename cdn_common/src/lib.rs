@@ -10,8 +10,6 @@ use tokio::task::JoinError;
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
-use std::borrow::Cow;
-
 use reqwest::Error as ReqwestError;
 
 use redis::RedisError;
@@ -26,46 +24,6 @@ use simd_json;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UploadResponse {
     pub url: String,
-}
-
-use argon2_async::Error as Argon2AsyncError;
-use sqlx::Error as SqlxError;
-
-pub enum VerifyTokenFailure {
-    MissingDatabase,
-    InvalidToken,
-    DbError(SqlxError),
-    VerifierError(Argon2AsyncError),
-}
-
-impl From<SqlxError> for VerifyTokenFailure {
-    #[inline]
-    fn from(e: sqlx::Error) -> Self {
-        Self::DbError(e)
-    }
-}
-
-impl From<Argon2AsyncError> for VerifyTokenFailure {
-    fn from(e: argon2_async::Error) -> Self {
-        Self::VerifierError(e)
-    }
-}
-
-use base64::DecodeError;
-use std::string::FromUtf8Error;
-
-/// Errors returned when splitting a token into its constituent parts.
-pub enum SplitTokenError {
-    /// Invalid UTF-8 detected
-    InvalidUtf8(FromUtf8Error),
-    /// Invalid base64 encoded data detected
-    Base64DecodeError(DecodeError),
-    /// Invalid integer found in the base64 encoded data.
-    InvalidInteger(std::num::ParseIntError),
-    /// Parts of the token are missing.
-    ///
-    /// The attached integer shows what part is missing. Zero-indexed.
-    MissingParts(u8),
 }
 
 pub enum CdnError {
@@ -91,82 +49,6 @@ pub enum CdnError {
 impl From<ErrorJson> for CdnError {
     fn from(err: ErrorJson) -> Self {
         Self::Http(err.into())
-    }
-}
-
-impl From<SqlxError> for CdnError {
-    fn from(e: SqlxError) -> Self {
-        if let sqlx::Error::Database(e) = e {
-            if e.code() == Some(Cow::from("23505")) {
-                Self::from(ErrorJson::new_409(
-                    "This object is a duplicate.".to_string(),
-                ))
-            } else {
-                Self::from(ErrorJson::new_500(
-                    format!("Database returned an error: {:?}", e),
-                    false,
-                    None,
-                ))
-            }
-        } else {
-            Self::from(ErrorJson::new_500(
-                format!("Database returned an error: {:?}", e),
-                false,
-                None,
-            ))
-        }
-    }
-}
-
-impl From<VerifyTokenFailure> for CdnError {
-    fn from(e: VerifyTokenFailure) -> Self {
-        let reason = match e {
-            VerifyTokenFailure::MissingDatabase => "database pool not found".to_string(),
-            VerifyTokenFailure::DbError(e) => return Self::from(e),
-            VerifyTokenFailure::VerifierError(e) => {
-                format!("argon2 verifier returned an error: {}", e)
-            }
-            VerifyTokenFailure::InvalidToken => {
-                unreachable!("a invalid token error should be handled earlier")
-            }
-        };
-        Self::Http(ErrorJson::new_500(reason, false, None))
-    }
-}
-
-impl From<Argon2AsyncError> for CdnError {
-    fn from(e: Argon2AsyncError) -> Self {
-        let reason = format!(
-            "hashing error: {}",
-            match e {
-                Argon2AsyncError::Communication => {
-                    "an error was encountered while waiting for a background thread to complete."
-                        .to_string()
-                }
-                Argon2AsyncError::Argon(e) =>
-                    format!("underlying argon2 algorithm threw an error: {}", e),
-                Argon2AsyncError::PasswordHash(e) => {
-                    format!("password string handling library threw an error: {}", e)
-                }
-                Argon2AsyncError::MissingConfig => "global configuration unset".to_string(),
-                _ => "unknown error".to_string(),
-            }
-        );
-        Self::Http(ErrorJson::new_500(reason, false, None))
-    }
-}
-
-impl From<SplitTokenError> for CdnError {
-    fn from(e: SplitTokenError) -> Self {
-        let message = match e {
-            SplitTokenError::InvalidUtf8(e) => format!("invalid utf8 found in token: {}", e),
-            SplitTokenError::Base64DecodeError(e) => {
-                format!("invalid base64 data found in token: {}", e)
-            }
-            SplitTokenError::InvalidInteger(e) => format!("invalid integer found in token: {}", e),
-            SplitTokenError::MissingParts(idx) => format!("part {} of token missing", idx),
-        };
-        Self::Http(ErrorJson::new_400(message))
     }
 }
 

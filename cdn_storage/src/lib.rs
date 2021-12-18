@@ -8,11 +8,13 @@ extern crate lazy_static;
 extern crate tracing;
 
 pub mod config;
+mod delete;
 mod download;
 mod entrypoint;
 pub mod node;
 mod upload;
 
+pub use delete::*;
 pub use download::*;
 pub use entrypoint::*;
 pub use upload::*;
