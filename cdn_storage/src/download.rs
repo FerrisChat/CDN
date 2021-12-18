@@ -17,6 +17,7 @@ pub async fn download(Path(filename): Path<String>) -> Result<Response<BoxBody>,
     let path = PathBuf::from(format!("{}/{}", *STORAGE_PATH, filename));
 
     if !path.exists() {
+        debug!("File not found: {:?}", path);
         return Err(CdnError::NotFound);
     }
 

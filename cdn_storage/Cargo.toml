@@ -22,6 +22,7 @@ hmac-sha512 = "1.1"
 futures = "0.3"
 http = "0.2"
 lazy_static = "1.4"
+tracing = "0.1"
 
 [dependencies.tower-http]
 version = "0.2.0"

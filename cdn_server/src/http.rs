@@ -18,6 +18,8 @@ pub fn load_http() {
 }
 
 pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
+    debug!("Attempting to get file from storage node: {}", ip);
+
     let resp = CLIENT
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
@@ -29,6 +31,7 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
     let status = resp.status();
 
     if !status.is_success() {
+        debug!("Failed to get file: {}", status);
         return Err(CdnError::RequestFailed(
             resp.text().await.unwrap_or("".to_string()),
             status.as_u16(),
