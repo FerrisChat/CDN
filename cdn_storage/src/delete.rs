@@ -2,7 +2,7 @@ use cdn_common::CdnError;
 
 use axum::extract::Path;
 
-use http::{Response, StatusCode};
+use http::StatusCode;
 
 use crate::config::STORAGE_PATH;
 

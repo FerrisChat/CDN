@@ -35,7 +35,7 @@ impl FromRequest<Body> for Authorization {
         })?;
 
         if token == *AUTH_TOKEN {
-            Ok(Self())
+            Ok(Self)
         } else {
             Err(ErrorJson::new_401("Authorization header passed was invalid".to_string()).into())
         }
