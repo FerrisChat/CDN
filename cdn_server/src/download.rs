@@ -14,7 +14,7 @@ use crate::http::get_file;
 use crate::node::get_node_ip;
 
 pub async fn download(
-    Path(node, filename): Path<(String, String)>
+    Path((node, filename)): Path<(String, String)>
 ) -> Result<Response<BoxBody>, CdnError> {
     let node_ip = get_node_ip(node).await?;
 
