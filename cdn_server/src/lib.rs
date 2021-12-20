@@ -14,6 +14,7 @@ pub mod entrypoint;
 pub mod http;
 pub mod node;
 pub mod upload;
+pub mod cache;
 
 pub use delete::*;
 pub use download::*;

@@ -3,6 +3,8 @@ use cdn_common::CdnError;
 use axum::body::{self, BoxBody};
 use axum::extract::Path;
 
+use crate::config::CACHE;
+
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 use http::{Response, StatusCode};
@@ -18,22 +20,35 @@ use crate::node::get_node_ip;
 pub async fn download(
     Path((node, filename)): Path<(String, String)>,
 ) -> Result<Response<BoxBody>, CdnError> {
-    let node_ip = get_node_ip(node).await?;
+    let mut content_type: String;
 
-    let file = get_file(node_ip, filename).await?;
+    let mut decoded: Vec<u8>;
 
-    let mut decoder = ZstdDecoder::new(Vec::new());
-    decoder
-        .write_all(&file)
-        .await
-        .map_err(|e| CdnError::FailedToDeCompress(e))?;
-    decoder
-        .shutdown()
-        .await
-        .map_err(|e| CdnError::FailedToDeCompress(e))?;
+    if *CACHE && let Some(file) = get_from_cache(&filename).await {
+        content_type = tree_magic::from_u8(&file);
+        decoded = file;
+    } else {
+        let node_ip = get_node_ip(node).await?;
 
-    let decoded = decoder.into_inner();
-    let content_type = tree_magic::from_u8(&decoded);
+        let file = get_file(node_ip, filename).await?;
+
+        let mut decoder = ZstdDecoder::new(Vec::new());
+        decoder
+            .write_all(&file)
+            .await
+            .map_err(|e| CdnError::FailedToDeCompress(e))?;
+        decoder
+            .shutdown()
+            .await
+            .map_err(|e| CdnError::FailedToDeCompress(e))?;
+
+        decoded = decoder.into_inner();
+        content_type = tree_magic::from_u8(&decoded);
+
+        if *CACHE {
+            insert_into_cache(filename, decoded.clone(), decoded.len()).await;
+        }
+    }
 
     let resp = Response::builder()
         .status(StatusCode::OK)

@@ -19,6 +19,7 @@ include = [
 [dependencies]
 hyper = "*"
 http = "0.2"
+sysinfo = "0.22"
 tree_magic = "0.2"
 futures = "0.3"
 rand = "0.8"
@@ -29,6 +30,10 @@ tracing = "0.1"
 [dependencies.tower-http]
 version = "0.2.0"
 features = ["trace"]
+
+[dependencies.stretto]
+version = "0.3"
+features = ["async"]
 
 [dependencies.axum]
 version = "0.4"

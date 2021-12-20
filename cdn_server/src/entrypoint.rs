@@ -8,10 +8,12 @@ use tower_http::trace::TraceLayer;
 
 use crate::http::load_http;
 use crate::node::load_redis;
+use crate::cache::load_cache;
 
 pub async fn entrypoint() {
     load_redis().await;
     load_http();
+    load_cache();
 
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))
