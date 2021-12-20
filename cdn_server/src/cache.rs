@@ -38,7 +38,10 @@ pub fn get_from_cache(key: &String) -> Option<Vec<u8>> {
         .get(key);
 
     if val.is_some() {
-        return Some(val.read().to_vec());
+        return Some(
+            val.unwrap_or_else(|| unreachable!("Unwrap failed even if it passed is_some() guard."))
+                .read(),
+        );
     }
 
     None
