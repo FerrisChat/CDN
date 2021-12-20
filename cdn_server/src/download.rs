@@ -14,6 +14,7 @@ use tree_magic;
 use async_compression::tokio::write::ZstdDecoder;
 use tokio::io::AsyncWriteExt as _; // for `write_all` and `shutdown`
 
+use crate::cache::{get_from_cache, insert_into_cache};
 use crate::http::get_file;
 use crate::node::get_node_ip;
 
@@ -26,7 +27,7 @@ pub async fn download(
 
     let mut status: StatusCode;
 
-    if *CACHE && let Some(file) = get_from_cache(&filename).await {
+    if *CACHE && matches!(get_from_cache(&filename), Some(file)) {
         content_type = tree_magic::from_u8(&file);
         decoded = file;
         status = StatusCode::FOUND;

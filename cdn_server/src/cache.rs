@@ -31,15 +31,14 @@ pub async fn insert_into_cache(key: String, value: Vec<u8>, cost: i64) {
         .await;
 }
 
-pub async fn get_from_cache(key: &String) -> Option<Vec<u8>> {
+pub fn get_from_cache(key: &String) -> Option<Vec<u8>> {
     let val = CACHE
         .get()
         .unwrap_or_else(|| panic!("Cache not initialized: did you call load_cache()?"))
-        .get(key)
-        .await;
+        .get(key);
 
     if val.is_some() {
-        return Some(val.read());
+        return Some(val.read().to_vec());
     }
 
     None

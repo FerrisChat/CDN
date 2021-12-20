@@ -5,7 +5,7 @@ fn get_default_cache_size() -> i64 {
     let mut sys = System::new();
     sys.refresh_all();
     let sys_mem = sys.total_memory() * 1024;
-    (sys_mem * 0.25) as i64
+    (sys_mem as f64 * 0.25) as i64
 }
 
 lazy_static! {
