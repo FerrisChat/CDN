@@ -24,9 +24,12 @@ pub async fn download(
 
     let mut decoded: Vec<u8>;
 
+    let mut status: StatusCode;
+
     if *CACHE && let Some(file) = get_from_cache(&filename).await {
         content_type = tree_magic::from_u8(&file);
         decoded = file;
+        status = StatusCode::FOUND;
     } else {
         let node_ip = get_node_ip(node).await?;
 
@@ -44,6 +47,7 @@ pub async fn download(
 
         decoded = decoder.into_inner();
         content_type = tree_magic::from_u8(&decoded);
+        status = StatusCode::OK;
 
         if *CACHE {
             insert_into_cache(filename, decoded.clone(), decoded.len()).await;
@@ -51,7 +55,7 @@ pub async fn download(
     }
 
     let resp = Response::builder()
-        .status(StatusCode::OK)
+        .status(status)
         .header(
             CONTENT_TYPE,
             HeaderValue::from_str(content_type.as_str())

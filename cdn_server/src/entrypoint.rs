@@ -6,9 +6,9 @@ use std::net::SocketAddr;
 
 use tower_http::trace::TraceLayer;
 
+use crate::cache::load_cache;
 use crate::http::load_http;
 use crate::node::load_redis;
-use crate::cache::load_cache;
 
 pub async fn entrypoint() {
     load_redis().await;

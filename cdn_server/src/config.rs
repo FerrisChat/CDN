@@ -1,5 +1,5 @@
 use std::env;
-use sysinfo::System;
+use sysinfo::{System, SystemExt};
 
 fn get_default_cache_size() -> i64 {
     let mut sys = System::new();
