@@ -1,0 +1,25 @@
+name: Clippy
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: nightly
+          override: true
+          components: clippy
+    
+    - name: Run Clippy
+      run: |
+        cargo clippy -- -W clippy::pedantic -W clippy::nursery -A clippy::too_many_lines -D warnings
