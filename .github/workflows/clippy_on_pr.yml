@@ -18,7 +18,7 @@ jobs:
           components: clippy
     
     - name: Run Clippy
-    - uses: actions-rs/clippy-check@v1
+      uses: actions-rs/clippy-check@v1
       with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: "-- -W clippy::pedantic -W clippy::nursery -A clippy::too_many_lines"
