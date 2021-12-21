@@ -24,6 +24,7 @@ tree_magic = "0.2"
 futures = "0.3"
 rand = "0.8"
 bytes = "1.1"
+ahash = "0.7"
 lazy_static = "1.4"
 tracing = "0.1"
 
