@@ -6,7 +6,7 @@ use ahash::{AHasher, RandomState};
 
 use crate::config::{CACHE as CACHE_ENABLED, CACHE_SIZE};
 
-pub static CACHE: OnceCell<AsyncCache<String, Vec<u8>, S = RandomState>> = OnceCell::new();
+pub static CACHE: OnceCell<AsyncCache<String, Vec<u8>, S: RandomState>>  = OnceCell::new();
 
 pub fn load_cache() {
     if !*CACHE_ENABLED {
