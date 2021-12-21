@@ -1,6 +1,5 @@
 #![feature(async_closure)]
 #![feature(once_cell)]
-#![feature(associated_type_bounds)]
 #![deny(unsafe_code)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::cast_precision_loss)]
