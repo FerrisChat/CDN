@@ -2,7 +2,7 @@ use stretto::AsyncCache;
 
 use std::lazy::SyncOnceCell as OnceCell;
 
-use ahash::AHasher;
+use ahash::{AHasher, RandomState};
 
 use crate::config::{CACHE as CACHE_ENABLED, CACHE_SIZE};
 
@@ -20,7 +20,7 @@ pub fn load_cache() {
     CACHE
         .set(
             AsyncCache::builder(max_counters, cache_size)
-                .set_hasher(AHasher::default())
+                .set_hasher(RandomState::new())
                 .finalize()
                 .unwrap_or_else(|e| panic!("Failed to initialize cache: {}", e)),
         )
