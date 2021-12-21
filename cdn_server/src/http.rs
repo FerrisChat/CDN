@@ -26,19 +26,19 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
         .get(format!("http://{}:8085/uploads/{}", ip, file).as_str())
         .send()
         .await
-        .map_err(|e| CdnError::ReqwestFailed(e))?;
+        .map_err(CdnError::ReqwestFailed)?;
 
     let status = resp.status();
 
     if !status.is_success() {
         debug!("Failed to get file: {}", status);
         return Err(CdnError::RequestFailed(
-            resp.text().await.unwrap_or("".to_string()),
+            resp.text().await.unwrap_or_else(|_| "".to_string()),
             status.as_u16(),
         ));
     }
 
-    Ok(resp.bytes().await.map_err(|e| CdnError::ReqwestFailed(e))?)
+    Ok(resp.bytes().await.map_err(CdnError::ReqwestFailed)?)
 }
 
 pub async fn delete_file(ip: String, file: String) -> Result<(), CdnError> {
@@ -50,14 +50,14 @@ pub async fn delete_file(ip: String, file: String) -> Result<(), CdnError> {
         .delete(format!("http://{}:8085/uploads/{}", ip, file).as_str())
         .send()
         .await
-        .map_err(|e| CdnError::ReqwestFailed(e))?;
+        .map_err(CdnError::ReqwestFailed)?;
 
     let status = resp.status();
 
     if !status.is_success() {
         debug!("Failed to get file: {}", status);
         return Err(CdnError::RequestFailed(
-            resp.text().await.unwrap_or("".to_string()),
+            resp.text().await.unwrap_or_else(|_| "".to_string()),
             status.as_u16(),
         ));
     }
@@ -77,13 +77,13 @@ pub async fn upload_file(
         .multipart(Form::new().part("file", Part::bytes(bytes).file_name(file_name)))
         .send()
         .await
-        .map_err(|e| CdnError::ReqwestFailed(e))?;
+        .map_err(CdnError::ReqwestFailed)?;
 
     let status = resp.status();
 
     if !status.is_success() {
         return Err(CdnError::RequestFailed(
-            resp.text().await.unwrap_or("".to_string()),
+            resp.text().await.unwrap_or_else(|_| "".to_string()),
             status.as_u16(),
         ));
     }
@@ -91,5 +91,5 @@ pub async fn upload_file(
     Ok(resp
         .json::<UploadResponse>()
         .await
-        .map_err(|e| CdnError::ReqwestFailed(e))?)
+        .map_err(CdnError::ReqwestFailed)?)
 }

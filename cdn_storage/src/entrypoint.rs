@@ -19,7 +19,7 @@ pub async fn entrypoint(node_id: u64) {
         _ => panic!("Failed to create uploads directory: {:?}", e),
     });
 
-    load_redis(node_id).await;
+    load_redis(node_id);
 
     let router = Router::new()
         .route("/ping", get(async || (StatusCode::OK, "")))

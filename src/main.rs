@@ -5,7 +5,7 @@ static GLOBAL: MiMalloc = MiMalloc;
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, Arg};
 
-use dotenv;
+use dotenv::dotenv;
 
 fn main() {
     let matches = clap::app_from_crate!()
@@ -17,8 +17,7 @@ fn main() {
                 .takes_value(true)
                 .required(true)
                 .validator(|arg| match arg.as_str() {
-                    "storage" => Ok(()),
-                    "server" => Ok(()),
+                    "storage" | "server" => Ok(()),
                     _ => Err(String::from(
                         "Invalid mode, must be either storage or server",
                     )),
@@ -45,7 +44,7 @@ fn main() {
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    dotenv::dotenv().ok();
+    dotenv().ok();
 
     if mode == "storage" {
         use cdn_storage::entrypoint;

@@ -12,7 +12,7 @@ use crate::config::REDIS_URL;
 
 pub static REDIS_MANAGER: OnceCell<Pool> = OnceCell::new();
 
-pub async fn load_redis() {
+pub fn load_redis() {
     let mut cfg = Config::from_url(REDIS_URL.clone());
 
     cfg.pool = {
@@ -43,7 +43,7 @@ pub async fn get_node_ip(node_id: String) -> Result<String, CdnError> {
     let mut conn = pool
         .get()
         .await
-        .map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
+        .map_err(CdnError::FailedToOpenRedisConnection)?;
 
     Ok(redis::cmd("HGET")
         .arg("cdn_nodes")
@@ -61,7 +61,7 @@ pub async fn get_all_nodes() -> Result<Vec<String>, CdnError> {
     let mut conn = pool
         .get()
         .await
-        .map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
+        .map_err(CdnError::FailedToOpenRedisConnection)?;
 
     Ok(redis::cmd("HKEYS")
         .arg("cdn_nodes")

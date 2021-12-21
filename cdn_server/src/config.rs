@@ -14,9 +14,10 @@ lazy_static! {
     pub static ref CACHE: bool = env::var("FC_CDN_CACHE")
         .map(|v| v == "true")
         .unwrap_or(false);
-    pub static ref CACHE_SIZE: i64 = env::var("FC_CDN_CACHE_SIZE")
-        .map(|v| v
+    pub static ref CACHE_SIZE: i64 = env::var("FC_CDN_CACHE_SIZE").map_or_else(
+        |_| get_default_cache_size(),
+        |v| v
             .parse::<i64>()
-            .unwrap_or_else(|_| get_default_cache_size()))
-        .unwrap_or_else(|_| get_default_cache_size());
+            .unwrap_or_else(|_| get_default_cache_size())
+    );
 }

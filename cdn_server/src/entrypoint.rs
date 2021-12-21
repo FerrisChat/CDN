@@ -11,7 +11,7 @@ use crate::http::load_http;
 use crate::node::load_redis;
 
 pub async fn entrypoint() {
-    load_redis().await;
+    load_redis();
     load_http();
     load_cache();
 

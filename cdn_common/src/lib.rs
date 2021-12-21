@@ -10,6 +10,8 @@ use tokio::task::JoinError;
 use serde::{Deserialize, Serialize};
 use std::io::Error as IoError;
 
+use simd_json::to_vec;
+
 use reqwest::Error as ReqwestError;
 
 use redis::RedisError;
@@ -138,7 +140,7 @@ impl IntoResponse for CdnError {
             ),
         };
 
-        let bytes = match simd_json::to_vec(&body) {
+        let bytes = match to_vec(&body) {
             Ok(res) => res,
             Err(err) => {
                 return Response::builder()

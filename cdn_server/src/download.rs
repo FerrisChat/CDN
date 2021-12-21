@@ -24,23 +24,23 @@ pub async fn download(
     if *CACHE {
         if let Some(file_) = get_from_cache(&filename) {
             let content_type = tree_magic::from_u8(&file_);
-            let decoded = file_;
+            let decoded_file = file_;
 
             let resp = Response::builder()
-            .status(StatusCode::FOUND)
-            .header(
-                CONTENT_TYPE,
-                HeaderValue::from_str(content_type.as_str())
-                    .unwrap_or(HeaderValue::from_static("application/octet-stream")),
-            )
-            .body(body::boxed(body::Full::from(decoded)))
-            .unwrap_or_else(|e| {
-                // this should only be reachable if a invalid HTTP code is passed in
-                unreachable!(
+                .status(StatusCode::FOUND)
+                .header(
+                    CONTENT_TYPE,
+                    HeaderValue::from_str(content_type.as_str())
+                        .unwrap_or(HeaderValue::from_static("application/octet-stream")),
+                )
+                .body(body::boxed(body::Full::from(decoded_file)))
+                .unwrap_or_else(|e| {
+                    // this should only be reachable if a invalid HTTP code is passed in
+                    unreachable!(
                     "got an error while attempting to construct HTTP response for ServerError: {}",
                     e
                 )
-            });
+                });
 
             return Ok(resp);
         }
@@ -54,17 +54,17 @@ pub async fn download(
     decoder
         .write_all(&file)
         .await
-        .map_err(|e| CdnError::FailedToDeCompress(e))?;
+        .map_err(CdnError::FailedToDeCompress)?;
     decoder
         .shutdown()
         .await
-        .map_err(|e| CdnError::FailedToDeCompress(e))?;
+        .map_err(CdnError::FailedToDeCompress)?;
 
-    let decoded = decoder.into_inner();
-    let content_type = tree_magic::from_u8(&decoded);
+    let decoded_file = decoder.into_inner();
+    let content_type = tree_magic::from_u8(&decoded_file);
 
     if *CACHE {
-        insert_into_cache(filename, decoded.clone(), decoded.len() as i64).await;
+        insert_into_cache(filename, decoded_file.clone(), decoded_file.len() as i64).await;
     }
 
     let resp = Response::builder()
@@ -74,7 +74,7 @@ pub async fn download(
             HeaderValue::from_str(content_type.as_str())
                 .unwrap_or(HeaderValue::from_static("application/octet-stream")),
         )
-        .body(body::boxed(body::Full::from(decoded)))
+        .body(body::boxed(body::Full::from(decoded_file)))
         .unwrap_or_else(|e| {
             // this should only be reachable if a invalid HTTP code is passed in
             unreachable!(

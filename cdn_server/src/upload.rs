@@ -19,16 +19,16 @@ pub async fn upload(
         let mut buffer: Vec<u8> = Vec::new();
 
         while let Some(chunk) = field.next().await {
-            let data = chunk.map_err(|e| CdnError::MultipartError(e))?;
+            let data = chunk.map_err(CdnError::MultipartError)?;
             buffer.append(&mut data.to_vec());
         }
 
-        let file_name = field.file_name().ok_or_else(|| CdnError::NoFileName)?;
+        let file_name = field.file_name().ok_or(CdnError::NoFileName)?;
 
         let nodes = get_all_nodes().await?;
         let node = nodes
             .choose(&mut thread_rng())
-            .ok_or_else(|| CdnError::FailedToGetNode)?;
+            .ok_or(CdnError::FailedToGetNode)?;
         let ip = get_node_ip(node.to_string()).await?;
 
         Ok(Json(upload_file(ip, file_name.to_string(), buffer).await?))

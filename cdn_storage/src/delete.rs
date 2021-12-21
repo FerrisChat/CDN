@@ -20,7 +20,7 @@ pub async fn delete(Path(filename): Path<String>) -> Result<StatusCode, CdnError
 
     fs::remove_file(path)
         .await
-        .map_err(|e| CdnError::FailedToOpen(e))?;
+        .map_err(CdnError::FailedToOpen)?;
 
     Ok(StatusCode::NO_CONTENT)
 }

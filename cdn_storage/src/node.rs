@@ -12,7 +12,7 @@ use cdn_common::CdnError;
 pub static REDIS_MANAGER: OnceCell<Pool> = OnceCell::new();
 pub static NODE_ID: OnceCell<u64> = OnceCell::new();
 
-pub async fn load_redis(node_id: u64) {
+pub fn load_redis(node_id: u64) {
     NODE_ID
         .set(node_id)
         .unwrap_or_else(|_| panic!("Failed to set node id: did you call load_redis twice"));
@@ -47,15 +47,16 @@ pub async fn get_max_content_length() -> Result<u64, CdnError> {
     let mut conn = pool
         .get()
         .await
-        .map_err(|e| CdnError::FailedToOpenRedisConnection(e))?;
+        .map_err(CdnError::FailedToOpenRedisConnection)?;
 
     Ok(redis::cmd("GET")
         .arg("max_content_length")
         .query_async::<_, u64>(&mut conn)
         .await
-        .unwrap_or(1024 * 1024 * 10 as u64))
+        .unwrap_or((1024 * 1024 * 10) as u64))
 }
 
+#[must_use]
 pub fn get_node_id() -> u64 {
     *NODE_ID.get().unwrap_or_else(|| {
         panic!("Node id not initialized: did you call load_redis()?");

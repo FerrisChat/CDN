@@ -21,9 +21,7 @@ pub async fn download(Path(filename): Path<String>) -> Result<Response<BoxBody>,
         return Err(CdnError::NotFound);
     }
 
-    let file = fs::read(path)
-        .await
-        .map_err(|e| CdnError::FailedToOpen(e))?;
+    let file = fs::read(path).await.map_err(CdnError::FailedToOpen)?;
 
     let resp = Response::builder()
         .status(StatusCode::OK)
