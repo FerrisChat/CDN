@@ -13,7 +13,7 @@ lazy_static! {
         env::var("FC_CDN_REDIS_URL").expect("FC_CDN_REDIS_URL env var is not set.");
     pub static ref CACHE: bool = env::var("FC_CDN_CACHE")
         .map(|v| v == "true")
-        .unwrap_or(false);
+        .unwrap_or(true);
     pub static ref CACHE_SIZE: i64 = env::var("FC_CDN_CACHE_SIZE").map_or_else(
         |_| get_default_cache_size(),
         |v| v

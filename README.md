@@ -16,4 +16,6 @@ FerrisChat's CDN, running on `cdn.ferris.chat`. Serves uploaded images and other
 
 `FC_CDN_REDIS_URL={the url of the redis instance e.g. redis://192.168.1.2:6379}`
 
-`FC_CDN_POSTGRES_URL={the url of the postgres instance e.g. postgresql://user:password@host:port/db?param1=value1&param2=value2}`
+`FC_CDN_CACHE={Whether to cache the files or not, defaults to true}`
+
+`FC_CDN_CACHE_SIZE={the max size of the cache in bytes e.g. 100000000 defaults to system's memory * 0.25}`
