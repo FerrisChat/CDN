@@ -27,7 +27,7 @@ pub async fn download(
 
     let mut status: StatusCode;
 
-    if *CACHE && matches!(get_from_cache(&filename), Some(file_)) {
+    if *CACHE && let Some(file_) = get_from_cache(&filename) {
         content_type = tree_magic::from_u8(&file_);
         decoded = file_;
         status = StatusCode::FOUND;
