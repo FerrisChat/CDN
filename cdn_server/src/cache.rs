@@ -36,7 +36,7 @@ pub fn get_from_cache(key: &str) -> Option<Vec<u8>> {
     let val = CACHE
         .get()
         .unwrap_or_else(|| panic!("Cache not initialized: did you call load_cache()?"))
-        .get(&*key);
+        .get(&key.to_string());
 
     if val.is_some() {
         return Some(
