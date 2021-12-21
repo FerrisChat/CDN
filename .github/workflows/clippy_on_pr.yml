@@ -1,0 +1,24 @@
+name: Rust
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: nightly
+          override: true
+          components: clippy
+    
+    - name: Run Clippy
+    - uses: actions-rs/clippy-check@v1
+      with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: "-- -W clippy::pedantic -W clippy::nursery -A clippy::too_many_lines"
