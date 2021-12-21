@@ -19,8 +19,6 @@ use deadpool::managed::PoolError;
 use http::header::CONTENT_TYPE;
 use http::HeaderValue;
 
-use simd_json;
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UploadResponse {
     pub url: String,
@@ -48,7 +46,7 @@ pub enum CdnError {
 
 impl From<ErrorJson> for CdnError {
     fn from(err: ErrorJson) -> Self {
-        Self::Http(err.into())
+        Self::Http(err)
     }
 }
 
@@ -61,23 +59,21 @@ impl IntoResponse for CdnError {
                     "Something went wrong while trying to save the file.".to_string(),
                     true,
                     None,
-                )
-                .into(),
+                ),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FileSizeExceeded => (
                 ErrorJson::new_400(
                     "File size exceeded. Please try again with a smaller file.".to_string(),
-                )
-                .into(),
+                ),
                 StatusCode::PAYLOAD_TOO_LARGE,
             ),
             CdnError::NoFileName => (
-                ErrorJson::new_400("No file name provided".to_string()).into(),
+                ErrorJson::new_400("No file name provided".to_string()),
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::MultipartError(err) => (
-                ErrorJson::new_400(format!("Failed to parse multipart: {:?}", err)).into(),
+                ErrorJson::new_400(format!("Failed to parse multipart: {:?}", err)),
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::FailedToOpenRedisConnection(err) => (
@@ -85,36 +81,35 @@ impl IntoResponse for CdnError {
                     format!("Failed to open redis connection: {:?}", err),
                     true,
                     None,
-                )
-                .into(),
+                ),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToGetNode => (
-                ErrorJson::new_500("Failed to get node from redis.".to_string(), true, None).into(),
+                ErrorJson::new_500("Failed to get node from redis.".to_string(), true, None),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NotFound => (
-                ErrorJson::new_404("File not found".to_string()).into(),
+                ErrorJson::new_404("File not found".to_string()),
                 StatusCode::NOT_FOUND,
             ),
             CdnError::FailedToDeCompress(err) => (
-                ErrorJson::new_500(format!("Failed to decompress: {:?}", err), true, None).into(),
+                ErrorJson::new_500(format!("Failed to decompress: {:?}", err), true, None),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToOpen(err) => (
-                ErrorJson::new_500(format!("Failed to open file: {:?}", err), true, None).into(),
+                ErrorJson::new_500(format!("Failed to open file: {:?}", err), true, None),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::RequestFailed(err, code) => (
-                ErrorJson::new_500(format!("Request failed: {}", err), true, None).into(),
+                ErrorJson::new_500(format!("Request failed: {}", err), true, None),
                 StatusCode::from_u16(code).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
             ),
             CdnError::ReqwestFailed(err) => (
-                ErrorJson::new_500(format!("Reqwest failed: {:?}", err), true, None).into(),
+                ErrorJson::new_500(format!("Reqwest failed: {:?}", err), true, None),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFileExtension => (
-                ErrorJson::new_400("No file extension provided".to_string()).into(),
+                ErrorJson::new_400("No file extension provided".to_string()),
                 StatusCode::BAD_REQUEST,
             ),
             CdnError::FailedToCompress(err) => (
@@ -122,8 +117,7 @@ impl IntoResponse for CdnError {
                     format!("Failed to compress the file: {:?}", err),
                     true,
                     None,
-                )
-                .into(),
+                ),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToSpawnBlock(err) => (
@@ -131,17 +125,15 @@ impl IntoResponse for CdnError {
                     format!("Task failed to execute to completion: {:?}", err),
                     true,
                     None,
-                )
-                .into(),
+                ),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::FailedToSave(err) => (
-                ErrorJson::new_500(format!("Failed to save the file: {:?}", err), true, None)
-                    .into(),
+                ErrorJson::new_500(format!("Failed to save the file: {:?}", err), true, None),
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
             CdnError::NoFile => (
-                ErrorJson::new_400("No file provided".to_string()).into(),
+                ErrorJson::new_400("No file provided".to_string()),
                 StatusCode::BAD_REQUEST,
             ),
         };
