@@ -7,7 +7,6 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::missing_panics_doc)]
-// #![allow(clippy::ptr_arg)]
 
 #[macro_use]
 extern crate lazy_static;
