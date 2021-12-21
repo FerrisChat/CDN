@@ -27,9 +27,9 @@ pub async fn download(
 
     let mut status: StatusCode;
 
-    if *CACHE && matches!(get_from_cache(&filename), Some(file)) {
-        content_type = tree_magic::from_u8(&file);
-        decoded = file;
+    if *CACHE && matches!(get_from_cache(&filename), Some(file_)) {
+        content_type = tree_magic::from_u8(&file_);
+        decoded = file_;
         status = StatusCode::FOUND;
     } else {
         let node_ip = get_node_ip(node).await?;
@@ -51,7 +51,7 @@ pub async fn download(
         status = StatusCode::OK;
 
         if *CACHE {
-            insert_into_cache(filename, decoded.clone(), decoded.len()).await;
+            insert_into_cache(filename, decoded.clone(), decoded.len() as i64).await;
         }
     }
 
