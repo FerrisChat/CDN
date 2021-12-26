@@ -27,7 +27,7 @@ pub async fn download(
             let decoded_file = file_;
 
             let resp = Response::builder()
-                .status(StatusCode::FOUND)
+                .status(StatusCode::OK)
                 .header(
                     CONTENT_TYPE,
                     HeaderValue::from_str(content_type.as_str())
