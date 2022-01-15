@@ -9,6 +9,7 @@ FerrisChat's CDN, running on `cdn.ferris.chat`. Serves uploaded images and other
 `HSET cdn_nodes {node_id e.g. 1} {node_ip e.g. 127.0.0.1}`
 
 **Fill in the following vars in the .env file:**
+`FC_CDN_AUTH_TOKEN={A token for Server backend to communiate with CDN}`
 
 `FC_CDN_HOST={the hostname of the cdn e.g. https://cdn.ferris.chat}`
 
