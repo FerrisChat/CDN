@@ -42,7 +42,7 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
 }
 
 pub async fn delete_file(ip: String, file: String) -> Result<(), CdnError> {
-    debug!("Attempting to delete file from storage node: {}", ip);
+    !("Attempting to delete file from storage node: {}", ip);
 
     let resp = CLIENT
         .get()
@@ -70,6 +70,8 @@ pub async fn upload_file(
     file_name: String,
     bytes: Vec<u8>,
 ) -> Result<UploadResponse, CdnError> {
+    debug!("Attempting to upload file from storage node: {}", ip);
+
     let resp = CLIENT
         .get()
         .unwrap_or_else(|| panic!("Failed to get HTTP Client: did you call load_http()?"))
