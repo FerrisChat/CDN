@@ -42,7 +42,7 @@ pub async fn get_file(ip: String, file: String) -> Result<Bytes, CdnError> {
 }
 
 pub async fn delete_file(ip: String, file: String) -> Result<(), CdnError> {
-    !("Attempting to delete file from storage node: {}", ip);
+    debug!("Attempting to delete file from storage node: {}", ip);
 
     let resp = CLIENT
         .get()
